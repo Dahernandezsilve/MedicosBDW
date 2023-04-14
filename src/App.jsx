@@ -1,7 +1,7 @@
-import {useEffect, useState} from 'react'
+/* eslint-disable react/react-in-jsx-scope */
+/* eslint-disable import/extensions */
 import './App.css'
-import Page from "./pages/index.jsx";
-
+import Page from './pages/index.jsx'
 
 function App() {
   /*
@@ -10,9 +10,9 @@ function App() {
     },[])
   */
   return (
-      <div className="App">
-          <Page/>
-      </div>
+    <div className="App">
+      <Page />
+    </div>
   )
 }
 export default App
