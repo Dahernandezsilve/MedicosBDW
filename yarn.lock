@@ -1985,6 +1985,11 @@ stop-iteration-iterator@^1.0.0:
   dependencies:
     internal-slot "^1.0.4"
 
+storeon@^3.1.5:
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/storeon/-/storeon-3.1.5.tgz#b64c829d45a4746dee4aa31d646cfcb54597d70a"
+  integrity sha512-VuW4GQr3LGQr+gqscqsOz2c9asK9N+B+8+sWs7Pj4OqU7bngYIqsPF3IYpkbmccKNWjs7wwxUAlR+gtL9cEMEg==
+
 string.prototype.matchall@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/string.prototype.matchall/-/string.prototype.matchall-4.0.8.tgz#3bf85722021816dcd1bf38bb714915887ca79fd3"

@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 /* eslint-disable import/no-cycle */
 import React from 'react'
 import Exit from './Exit/Exit.jsx'
