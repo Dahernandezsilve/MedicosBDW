@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { navigate } from '../index.jsx'
 import '../../components/Login/Login.css'
-
 import useApi from '../../../hooks/useApi/useApi.js'
 import MS from '../../assets/MS.svg'
 import flecha from '../../assets/flecha-curva.png'
+
 
 function SignUpContainer({
   handleLogin, dpi, nombre, response, setDpi, setNombre, loading,
@@ -23,6 +23,7 @@ function SignUpContainer({
           type="button"
           onClick={() => {
             handleLogin()
+
             navigate('Exit')
           }}
         >
@@ -53,7 +54,7 @@ function LoginContainer({
           className="btnForm"
           type="button"
           onClick={() => {
-            const answer = handleLogin()
+            const answer = handleLogin()  
           }}
         >
           Acceder
@@ -92,7 +93,6 @@ function Login() {
 
   const handleLogin = async () => {
     await handleRequest('POST', '/login', { dpi: parseInt(dpi, 10).toString(), clave })
-    console.log('logeado')
   }
 
   return (

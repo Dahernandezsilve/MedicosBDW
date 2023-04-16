@@ -3,6 +3,7 @@
 import React from 'react'
 import Exit from './Exit/Exit.jsx'
 import Welcome from './Welcome/Welcome.jsx'
+import Doctor from './Doctor/Doctor.jsx'
 
 const navigate = (page) => {
   window.location = `/?route=${page}`
@@ -17,7 +18,7 @@ function Page() {
     case 'Exit':
       return <Exit />
     default:
-      return <Welcome />
+      return <Doctor />
   }
 }
 
