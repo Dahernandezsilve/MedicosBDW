@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import { Navigate, useRoutes } from 'react-router-dom'
 import { navigate } from '../index.jsx'
 import '../../components/Login/Login.css'
 import useApi from '../../../hooks/useApi/useApi.js'
 import MS from '../../assets/MS.svg'
 import flecha from '../../assets/flecha-curva.png'
+import { any } from 'prop-types'
+
 
 
 function SignUpContainer({
@@ -41,7 +44,7 @@ function SignUpContainer({
 }
 
 function LoginContainer({
-  handleLogin, response, setDpi, setClave, loading,
+  handleLogin, response, setDpi, setClave, loading, navegar
 }) {
   return (
     <div className="form-container login-container">
@@ -50,15 +53,9 @@ function LoginContainer({
         <h1 className="titleForm">Ingresar</h1>
         <input placeholder="DPI" onChange={({ target: { value } }) => setDpi(value)} />
         <input placeholder="Contraseña" onChange={({ target: { value } }) => setClave(value)} />
-        <button
-          className="btnForm"
-          type="button"
-          onClick={() => {
-            const answer = handleLogin()  
-          }}
-        >
-          Acceder
-        </button>
+        {
+        navegar ? (<Navigate to="/dashboard/app" />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
+        }
         {
                     loading ? 'loading' : ''
                 }
@@ -74,6 +71,7 @@ function Login() {
   const [response, loading, handleRequest] = useApi()
   const [dpi, setDpi] = useState('')
   const [nombre, setNombre] = useState('')
+  const [navegar, setNavegar] = useState(false)
 
   const [clave, setClave] = useState('')
   const [showSignUp, setShowSignUp] = useState(false)
@@ -93,6 +91,15 @@ function Login() {
 
   const handleLogin = async () => {
     await handleRequest('POST', '/login', { dpi: parseInt(dpi, 10).toString(), clave })
+    console.log('respuesta', response)
+    if (response!==null && response!==undefined) {
+      const verificador = response.message
+      console.log('mensaje', verificador)
+      if (verificador === 'Se encontro un match Login correcto') {
+        console.log('Ir a otro sitio');
+        setNavegar(true)
+      }
+    }
   }
 
   return (
@@ -112,6 +119,7 @@ function Login() {
         setDpi={setDpi}
         setClave={setClave}
         loading={loading}
+        navegar={navegar}
       />
       <div className="overlay-container">
         <div className="overlay">

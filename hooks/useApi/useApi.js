@@ -19,8 +19,9 @@ const useApi = () => {
     console.log('method', method)
     const fetchResponse = await fetch(`http://52.14.44.33/api${path}`, options)
     const JSONresponse = await fetchResponse.json()
-    
+
     setResponse(JSONresponse)
+    console.log('response', response)
     setLoading(false)
   }
 
