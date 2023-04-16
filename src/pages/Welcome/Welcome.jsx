@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Navigate, useRoutes } from 'react-router-dom'
 import { navigate } from '../index.jsx'
 import '../../components/Login/Login.css'
@@ -6,6 +6,8 @@ import useApi from '../../../hooks/useApi/useApi.js'
 import MS from '../../assets/MS.svg'
 import flecha from '../../assets/flecha-curva.png'
 import { any } from 'prop-types'
+import { AuthContex } from '../../App.jsx'
+import { set } from 'lodash'
 
 
 
@@ -68,6 +70,7 @@ function LoginContainer({
 }
 
 function Login() {
+  const {auth, setAuth} = useContext(AuthContex)
   const [response, loading, handleRequest] = useApi()
   const [dpi, setDpi] = useState('')
   const [nombre, setNombre] = useState('')
@@ -96,7 +99,10 @@ function Login() {
       const verificador = response.message
       console.log('mensaje', verificador)
       if (verificador === 'Se encontro un match Login correcto') {
-        console.log('Ir a otro sitio');
+        console.log('Ir a otro sitio')
+        setAuth({ token: response.sessionToken, authenticated: true })
+        console.log(auth.token)
+        console.log(auth.authentication)
         setNavegar(true)
       }
     }

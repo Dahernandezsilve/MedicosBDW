@@ -1,8 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
+
 import { Helmet } from 'react-helmet-async'
 import { filter, set } from 'lodash'
 import { sentenceCase } from 'change-case'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 // @mui
 import {
   Card,
@@ -32,6 +33,7 @@ import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user'
 // mock
 import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
+import { AuthContex } from '../../App.jsx'
 
 // ----------------------------------------------------------------------
 
@@ -76,6 +78,8 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
+  const {auth, setAuth} = useContext(AuthContex)
+
   const [response, loading, handleRequest] = useApi()
 
   const [id_patient, setIdPatient] = useState('')
@@ -151,18 +155,24 @@ export default function UserPage() {
 
 
   const handleLogin = async () => {
-    await handleRequest('POST', '/login', { dpi: 'Master', clave: '0000' })
+    handleRequest('POST', '/login', { dpi: 'Master', clave: '0000' })
   }
 
   const handleGetPaciente = async () => {
     // eslint-disable-next-line camelcase
-    await handleRequest('POST', '/expedient', { id_patient })
+    handleRequest('POST', '/patients', { id_patient }, auth.token)
   }
 
-  const handleEnter = async (event) => {
+  const handleExpediente = async () => {
+    // eslint-disable-next-line camelcase
+    await handleRequest('POST', '/expedient', { id_patient }, auth.token)
+  }
+
+  const handleEnter = (event) => {
     if (event.keyCode === 13) {
       console.log('Se presionó Enter')
-      await handleGetPaciente()
+      handleGetPaciente()
+      console.log('response', response)
     }
   }
 
@@ -183,7 +193,7 @@ export default function UserPage() {
       <Typography variant="h2" gutterBottom alignItems='left'>
        Expediente:
       </Typography>
-        <div onKeyDown={handleEnter} 
+        <div onKeyUp={handleEnter} 
              onChange={({ target: { value } }) => {
             setIdPatient(value)
           }}>
