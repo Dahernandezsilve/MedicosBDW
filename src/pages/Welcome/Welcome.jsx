@@ -94,7 +94,6 @@ function Login() {
 
   const handleLogin = async () => {
     await handleRequest('POST', '/login', { dpi: parseInt(dpi, 10).toString(), clave })
-
   }
 
   useEffect(() => {

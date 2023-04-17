@@ -38,13 +38,13 @@ import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App.jsx'
 
 // ----------------------------------------------------------------------
-
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'date', label: 'Fecha', alignRight: false },
+  { id: 'nameDoctor', label: 'Doctor', alignRight: false },
+  { id: 'description', label: 'Descripcion', alignRight: false },
+  { id: 'evolution', label: 'Evolución', alignRight: false },
+  { id: 'healthUnit', label: 'Unidad de salud', alignRight: false },
+  { id: 'disease', label: 'Enfermedad', alignRight: false },
   { id: '' },
 ]
 
@@ -89,6 +89,12 @@ export default function UserPage() {
   const [expedienteS, setExpedienteS] = useState(false)
 
   const [id_patient, setIdPatient] = useState('')
+
+  const [isNotFound, setIsNotFound] = useState(false)
+
+  const [editar, setEditar] = useState(false)
+  const [tratamientos, setTratamientos] = useState(false)
+  const [eliminar, setEliminar] = useState(false)
 
   const [open, setOpen] = useState(null)
 
@@ -177,15 +183,18 @@ export default function UserPage() {
   }
 
   useEffect(() => {
-    if (response.data && response.data[0].addiction !== undefined) {
-      setExpedienteS(true)
-      console.log(response.data[0].name_patient)
-      setDataUser(response.data[0])
-      console.log('response45', response)
-    } else {
-      if (response.data && response.data[0].evolution !== undefined) {
-        setDataExpedient(response.data)
-        console.log('response46', response)
+    if(response.data){
+      if (response.data[0].addiction !== undefined) {
+        setExpedienteS(true)
+        console.log(response.data[0].name_patient)
+        setDataUser(response.data[0])
+        console.log('response45', response)
+      } else {
+          setDataExpedient(response.data)
+          console.log('response46', response)
+        if(response.data.length<=0) {
+          setIsNotFound(true)
+        }
       }
     }
   }, [response])
@@ -200,12 +209,8 @@ export default function UserPage() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName)
-
-  const isNotFound = !filteredUsers.length && !!filterName
-
   return (
-    <>
+    <div>
       <Helmet>
         <title> Expediente </title>
       </Helmet>
@@ -267,102 +272,52 @@ export default function UserPage() {
               </Typography>
             </>
           ) : (
-            <>
-              <Typography variant="h4" gutterBottom>
-                Datos generales
-                <Typography variant="h6" gutterBottom>
-                  Nombre:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Dirección:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Teléfono:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Fecha de nacimiento:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Género:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Adicciones:
-                </Typography>
-              </Typography>
-              <Typography variant="h4" gutterBottom>
-                Estado actual
-                <Typography variant="h6" gutterBottom>
-                  Fecha inicio:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Indice de masa corporal:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Peso:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Altura:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Enfermedad hereditaria:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Estado:
-                </Typography>
-              </Typography>
-            </>
+            <Typography variant="h4" gutterBottom>
+              Datos generales
+            </Typography>
           )
             }
         </Stack>
         <Typography variant="h3" gutterBottom>
           Consultas
         </Typography>
-        <Card>
+        <Card >
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
                 <UserListHead
-                  order={order}
-                  orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={USERLIST.length}
                   numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {dataExpedient.map((row) => {
                     const {
-                      id, name, role, status, company, avatarUrl, isVerified,
+                      date, description, disease,
+                      evolution, healthUnit, id, nameDoctor
                     } = row
-                    const selectedUser = selected.indexOf(name) !== -1
+                    const selectedUser = selected.indexOf(id) !== -1
 
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
+                      <TableRow hover key={id} tabIndex={0}>
+                        <TableCell style={{ fontSize: 10 }} component="th" scope="row" padding="none">
+                          {date}
                         </TableCell>
 
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
+                        <TableCell style={{ fontSize: 10 }} align="left">{nameDoctor}</TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="left">{description}</TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="left">{evolution}
                         </TableCell>
 
-                        <TableCell align="left">{company}</TableCell>
-
-                        <TableCell align="left">{role}</TableCell>
-
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-                        <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
+                        <TableCell style={{ fontSize: 10 }} align="left">
+                          {healthUnit}
                         </TableCell>
 
-                        <TableCell align="right">
+                        <TableCell style={{ fontSize: 10 }} align="right">{disease}</TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="right">
                           <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
                             <Iconify icon="eva:more-vertical-fill" />
                           </IconButton>
@@ -441,16 +396,28 @@ export default function UserPage() {
           },
         }}
       >
-        <MenuItem>
+        <MenuItem onClick={()=> {
+          setEditar(true)
+          console.log('edit',editar)
+        } }>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Editar
+        </MenuItem>
+        <MenuItem onClick={()=> {
+          setTratamientos(true)
+        }}>
+          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+          Ver tratamientos
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }}>
+        <MenuItem sx={{ color: 'error.main' }} 
+          onClick={()=> {
+          setTratamientos(true)
+        }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
       </Popover>
-    </>
+    </div>
   )
 }
