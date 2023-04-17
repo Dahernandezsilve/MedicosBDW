@@ -1,11 +1,10 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable max-len */
 /* eslint-disable react/react-in-jsx-scope */
 
 import { Helmet } from 'react-helmet-async'
 import { filter, set } from 'lodash'
 import { sentenceCase } from 'change-case'
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useState } from 'react'
 // @mui
 import {
   Card,
@@ -31,21 +30,21 @@ import Label from '../../components/label'
 import Iconify from '../../components/iconify'
 import Scrollbar from '../../components/scrollbar'
 // sections
-import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user'
+import { UserListHead } from '../../sections/@dashboard/user'
 // mock
 import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
-import { AuthContex } from '../../App.jsx'
+import { AuthContex } from '../../App'
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'Posición', label: 'Name', alignRight: false },
   { id: 'company', label: 'Company', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
   { id: 'isVerified', label: 'Verified', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
-  { id: '' },
+  { id: ' ' },
 ]
 
 // ----------------------------------------------------------------------
@@ -79,20 +78,12 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0])
 }
 
-export default function UserPage() {
+export default function Estadisticas() {
   const {auth, setAuth} = useContext(AuthContex)
 
   const [response, loading, handleRequest] = useApi()
 
-  const [dataUser, setDataUser] = useState({})
-
-  const [expedienteS, setExpedienteS] = useState(false)
-
-  const [id_patient, setIdPatient] = useState('')
-
   const [open, setOpen] = useState(null)
-
-  const [dataExpedient, setDataExpedient] = useState([])
 
   const [page, setPage] = useState(0)
 
@@ -102,7 +93,7 @@ export default function UserPage() {
 
   const [orderBy, setOrderBy] = useState('name')
 
-  const [filterName, setFilterName] = useState('')
+  const [filterName] = useState('')
 
   const [rowsPerPage, setRowsPerPage] = useState(5)
 
@@ -129,8 +120,6 @@ export default function UserPage() {
     setSelected([])
   }
 
-
-
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name)
     let newSelected = []
@@ -155,46 +144,18 @@ export default function UserPage() {
     setRowsPerPage(parseInt(event.target.value, 10))
   }
 
-  const handleFilterByName = (event) => {
-    setPage(0)
-    setFilterName(event.target.value)
-  }
-
-
-
-  const handleLogin = async () => {
-    handleRequest('POST', '/login', { dpi: 'Master', clave: '0000' })
-  }
-
   const handleGetPaciente = async () => {
     // eslint-disable-next-line camelcase
-    await handleRequest('POST', '/patients', { id_patient }, auth.token)
+    handleRequest('POST', '/patients', { id_patient }, auth.token)
   }
 
-  const handleExpediente = async () => {
-    // eslint-disable-next-line camelcase
-    await handleRequest('POST', '/expedient', { id_patient }, auth.token)
-  }
-
-  useEffect(() => {
-    if (response.data && response.data[0].addiction !== undefined) {
-      setExpedienteS(true)
-      console.log(response.data[0].name_patient)
-      setDataUser(response.data[0])
-      console.log('response45', response)
-    } else {
-      if (response.data && response.data[0].evolution !== undefined) {
-        setDataExpedient(response.data)
-        console.log('response46', response)
-      }
-    }
-  }, [response])
-
-  const handleEnter = async (event) => {
+  const handleEnter = (event) => {
     if (event.keyCode === 13) {
       console.log('Se presionó Enter')
-      await handleGetPaciente()
-      await handleExpediente()
+      handleGetPaciente()
+      if (response.data[0] !== undefined) {
+        console.log(response.data[0].name_patient)
+      }
     }
   }
 
@@ -207,115 +168,11 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> Expediente </title>
+        <title> Estadísticas </title>
       </Helmet>
       <Container>
         <Typography variant="h2" gutterBottom alignItems='left'>
-          Expediente:
-        </Typography>
-        <div onKeyUp={handleEnter} 
-             onChange={({ target: { value } }) => {
-             setIdPatient(value)
-            }}>
-          <UserListToolbar />
-        </div>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          {
-          expedienteS ? (
-            <>
-              <Typography variant="h4" gutterBottom>
-                Datos generales
-                <Typography variant="h6" gutterBottom>
-                  Nombre: {dataUser.name_patient}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Dirección: {dataUser.address}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Teléfono: {dataUser.address}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Fecha de nacimiento: {dataUser.birthdate}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Género: {dataUser.genre}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Adicciones: {dataUser.addiction}
-                </Typography>
-              </Typography>
-              <Typography variant="h4" gutterBottom>
-                Estado actual {dataUser.status}
-                <Typography variant="h6" gutterBottom>
-                  Fecha inicio: {dataUser.start_date}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Indice de masa corporal: {dataUser.corporal_mass}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Peso: {dataUser.weight}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Altura: {dataUser.height}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Enfermedad hereditaria: {dataUser.hereditary_disease}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Estado: {dataUser.status}
-                </Typography>
-              </Typography>
-            </>
-          ) : (
-            <>
-              <Typography variant="h4" gutterBottom>
-                Datos generales
-                <Typography variant="h6" gutterBottom>
-                  Nombre:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Dirección:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Teléfono:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Fecha de nacimiento:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Género:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Adicciones:
-                </Typography>
-              </Typography>
-              <Typography variant="h4" gutterBottom>
-                Estado actual
-                <Typography variant="h6" gutterBottom>
-                  Fecha inicio:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Indice de masa corporal:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Peso:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Altura:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Enfermedad hereditaria:
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                  Estado:
-                </Typography>
-              </Typography>
-            </>
-          )
-            }
-        </Stack>
-        <Typography variant="h3" gutterBottom>
-          Consultas
+          Estadísticas
         </Typography>
         <Card>
           <Scrollbar>
@@ -452,5 +309,5 @@ export default function UserPage() {
         </MenuItem>
       </Popover>
     </>
-  )
+  ) 
 }

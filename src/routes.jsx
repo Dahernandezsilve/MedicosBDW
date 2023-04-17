@@ -7,6 +7,8 @@ import Doctor from './pages/Doctor/Doctor'
 import UserPage from './pages/UserPage/UserPage'
 import Welcome from './pages/Welcome/Welcome'
 import { element } from 'prop-types'
+import Estadisticas from './pages/Estadisticas/Estadisticas'
+import NuevaConsulta from './pages/NuevaConsulta/NuevaConsulta'
 
 // ----------------------------------------------------------------------
 
@@ -20,9 +22,10 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { element: <Navigate to="/app" />, index: true },
-        { path: 'app', element: <Doctor /> },
+        { element: <Navigate to="/expediente" />, index: true },
         { path: 'expediente', element: <UserPage /> },
+        { path: 'estadisticas', element: <Estadisticas /> },
+        { path: 'nuevaconsulta', element: <NuevaConsulta /> },
       ],
     },
   ])

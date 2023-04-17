@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import { Navigate, useRoutes } from 'react-router-dom'
 import { navigate } from '../index.jsx'
 import '../../components/Login/Login.css'
@@ -56,7 +56,7 @@ function LoginContainer({
         <input placeholder="DPI" onChange={({ target: { value } }) => setDpi(value)} />
         <input placeholder="Contraseña" onChange={({ target: { value } }) => setClave(value)} />
         {
-        navegar ? (<Navigate to="/dashboard/app" />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
+        navegar ? (<Navigate to="/dashboard/expediente" />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
         }
         {
                     loading ? 'loading' : ''
@@ -94,6 +94,10 @@ function Login() {
 
   const handleLogin = async () => {
     await handleRequest('POST', '/login', { dpi: parseInt(dpi, 10).toString(), clave })
+
+  }
+
+  useEffect(() => {
     console.log('respuesta', response)
     if (response!==null && response!==undefined) {
       const verificador = response.message
@@ -106,7 +110,7 @@ function Login() {
         setNavegar(true)
       }
     }
-  }
+  }, [response])
 
   return (
     <div className={containerClass}>

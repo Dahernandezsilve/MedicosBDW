@@ -8,23 +8,18 @@ const icon = (name) => <SvgColor src={`src/assets/icons/navbar/${name}.svg`} sx=
 
 const navConfig = [
   {
-    title: 'dashboard',
-    path: '/dashboard/app',
-    icon: icon('ic_analytics'),
-  },
-  {
     title: 'expediente',
     path: '/dashboard/expediente',
     icon: icon('ic_user'),
   },
   {
-    title: 'product',
-    path: '/dashboard/products',
+    title: 'estadisticas',
+    path: '/dashboard/estadisticas',
     icon: icon('ic_cart'),
   },
   {
-    title: 'login',
-    path: '/login',
+    title: 'nueva consulta',
+    path: '/dashboard/nuevaconsulta',
     icon: icon('ic_lock'),
   },
 ]
