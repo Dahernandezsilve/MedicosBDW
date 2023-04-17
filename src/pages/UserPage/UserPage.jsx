@@ -82,6 +82,8 @@ export default function UserPage() {
 
   const [response, loading, handleRequest] = useApi()
 
+  const [expedienteS, setExpedienteS] = useState(false)
+
   const [id_patient, setIdPatient] = useState('')
 
   const [open, setOpen] = useState(null)
@@ -161,6 +163,7 @@ export default function UserPage() {
   const handleGetPaciente = async () => {
     // eslint-disable-next-line camelcase
     handleRequest('POST', '/patients', { id_patient }, auth.token)
+    
   }
 
   const handleExpediente = async () => {
@@ -172,7 +175,11 @@ export default function UserPage() {
     if (event.keyCode === 13) {
       console.log('Se presionó Enter')
       handleGetPaciente()
-      console.log('response', response)
+      if (response.data[0] !== undefined){
+        setExpedienteS(true)
+        console.log(response.data[0].name_patient)
+      }
+
     }
   }
 
@@ -187,8 +194,6 @@ export default function UserPage() {
       <Helmet>
         <title> Expediente </title>
       </Helmet>
-      
-
       <Container>
       <Typography variant="h2" gutterBottom alignItems='left'>
        Expediente:
@@ -197,51 +202,62 @@ export default function UserPage() {
              onChange={({ target: { value } }) => {
             setIdPatient(value)
           }}>
-          <UserListToolbar  numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <UserListToolbar />
         </div>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            Datos generales
+          {
+          expedienteS ? (
             <Typography variant="h6" gutterBottom>
-              Nombre:
+              Nombre:  {response.data[0].name_patient}
             </Typography>
-            <Typography variant="h6" gutterBottom>
-              Dirección:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Teléfono:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Fecha de nacimiento:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Género:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Adicciones:
-            </Typography>
-          </Typography>
-          <Typography variant="h4" gutterBottom>
-            Estado actual
-            <Typography variant="h6" gutterBottom>
-              Fecha inicio:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Indice de masa corporal:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Peso:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Altura:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Enfermedad hereditaria:
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Estado:
-            </Typography>
-          </Typography>
+          ) : (
+            <>
+              <Typography variant="h4" gutterBottom>
+                Datos generales
+                <Typography variant="h6" gutterBottom>
+                  Nombre:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Dirección:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Teléfono:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Fecha de nacimiento:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Género:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Adicciones:
+                </Typography>
+              </Typography>
+              <Typography variant="h4" gutterBottom>
+                Estado actual
+                <Typography variant="h6" gutterBottom>
+                  Fecha inicio:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Indice de masa corporal:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Peso:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Altura:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Enfermedad hereditaria:
+                </Typography>
+                <Typography variant="h6" gutterBottom>
+                  Estado:
+                </Typography>
+              </Typography>
+            </>
+          )
+            }
+         
         </Stack>
         <Typography variant="h3" gutterBottom>
             Consultas
