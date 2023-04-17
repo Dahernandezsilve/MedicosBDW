@@ -36,6 +36,7 @@ import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user'
 import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App.jsx'
+import Modal from '../../components/Modal/Modal'
 
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
@@ -90,6 +91,8 @@ export default function UserPage() {
 
   const [id_patient, setIdPatient] = useState('')
 
+  const [id_consult, setIdConsult] = useState('')
+
   const [isNotFound, setIsNotFound] = useState(false)
 
   const [editar, setEditar] = useState(false)
@@ -111,6 +114,15 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('')
 
   const [rowsPerPage, setRowsPerPage] = useState(5)
+
+  const handleOpenTratamientos = () => {
+    setTratamientos(true)
+  }
+
+  const handleCloseTratamientos = () => {
+    setTratamientos(true)
+    console.log('estado tratamientos', tratamientos)
+  }
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget)
@@ -168,8 +180,8 @@ export default function UserPage() {
 
 
 
-  const handleLogin = async () => {
-    handleRequest('POST', '/login', { dpi: 'Master', clave: '0000' })
+  const handleTratamient = async () => {
+    handleRequest('POST', '/tratamient', { id_consult }, auth.token)
   }
 
   const handleGetPaciente = async () => {
@@ -398,22 +410,106 @@ export default function UserPage() {
       >
         <MenuItem onClick={()=> {
           setEditar(true)
-          console.log('edit',editar)
+          console.log('edit', editar)
         } }>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Editar
         </MenuItem>
-        <MenuItem onClick={()=> {
-          setTratamientos(true)
-        }}>
+        <MenuItem onClick={handleOpenTratamientos}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Ver tratamientos
-        </MenuItem>
+          {tratamientos && (
+            <Modal onClose={handleCloseTratamientos}>
+              <h2>Tratamientos</h2>
+              <TableContainer sx={{ minWidth: 800 }}>
+              <Table>
+                <UserListHead
+                  headLabel={TABLE_HEAD}
+                  rowCount={USERLIST.length}
+                  numSelected={selected.length}
+                />
+                <TableBody>
+                  {dataExpedient.map((row) => {
+                    const {
+                      date, description, disease,
+                      evolution, healthUnit, id, nameDoctor
+                    } = row
+                    const selectedUser = selected.indexOf(id) !== -1
 
+                    return (
+                      <TableRow hover key={id} tabIndex={0}>
+                        <TableCell style={{ fontSize: 10 }} component="th" scope="row" padding="none">
+                          {date}
+                        </TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="left">{nameDoctor}</TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="left">{description}</TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="left">{evolution}
+                        </TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="left">
+                          {healthUnit}
+                        </TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="right">{disease}</TableCell>
+
+                        <TableCell style={{ fontSize: 10 }} align="right">
+                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
+                            <Iconify icon="eva:more-vertical-fill" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 53 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+
+                {isNotFound && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                        <Paper
+                          sx={{
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Typography variant="h6" paragraph>
+                            Not found
+                          </Typography>
+
+                          <Typography variant="body2">
+                            No results found for &nbsp;
+                            <strong>
+                              &quot;
+                              {filterName}
+                              &quot;
+                            </strong>
+                            .
+                            <br />
+                            {' '}
+                            Try checking for typos or using complete words.
+                          </Typography>
+                        </Paper>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
+              </Table>
+              </TableContainer>
+              <button onClick={handleCloseTratamientos}>Cerrar</button>
+            </Modal>
+          )}
+        </MenuItem>
         <MenuItem sx={{ color: 'error.main' }} 
           onClick={()=> {
           setTratamientos(true)
-        }}>
+          }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
