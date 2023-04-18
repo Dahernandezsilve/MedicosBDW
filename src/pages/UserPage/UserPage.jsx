@@ -52,6 +52,14 @@ const TABLE_HEAD = [
   { id: 'disease', label: 'Enfermedad', alignRight: false },
   { id: '' },
 ]
+
+const tableTratamientos = [
+  { id: 'descripción', label: 'Descripción', alignRight: false },
+  { id: 'dosis', label: 'Dosis', alignRight: false },
+  { id: 'cantidad', label: 'Cantidad', alignRight: false },
+  { id: 'fechaInicio', label: 'Fecha de inicio', alignRight: false },
+  { id: 'fechaFin', label: 'Fecha de finalización', alignRight: false },
+]
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -274,8 +282,8 @@ export default function UserPage() {
 
                     return (
                       <TableRow hover key={id} tabIndex={0}>
-                        <TableCell style={{ fontSize: 10 }} component="th" scope="row" padding="none">
-                          {date}
+                        <TableCell style={{ fontSize: 10, paddingLeft: '16px' }} component="th" scope="row" padding="none">
+                          <span>&nbsp;</span>{date}
                         </TableCell>
 
                         <TableCell style={{ fontSize: 10 }} align="left">{nameDoctor}</TableCell>
@@ -380,8 +388,8 @@ export default function UserPage() {
           handleOpenTratamientos()
         }}
         >
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Ver tratamientos
+          <img src="../../../src/assets/eye.svg" alt="Ministerio de salud" />
+          <span>&nbsp;</span>Ver tratamientos
         </MenuItem>
         <MenuItem sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
@@ -394,7 +402,7 @@ export default function UserPage() {
         <TableContainer sx={{ minWidth: 800 }}>
           <Table>
             <UserListHead
-              headLabel={TABLE_HEAD}
+              headLabel={tableTratamientos}
               rowCount={USERLIST.length}
               numSelected={selected.length}
             />
@@ -410,7 +418,7 @@ export default function UserPage() {
                 // eslint-disable-next-line no-unused-expressions
                 return (
                   <TableRow hover key={dose} tabIndex={0}>
-                    <TableCell style={{ fontSize: 10 }} component="th" scope="row" padding="none">
+                    <TableCell style={{ fontSize: 10, paddingLeft: '16px' }} component="th" scope="row" padding="none">
                       {inputDescription}
                     </TableCell>
 
