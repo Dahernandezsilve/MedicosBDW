@@ -120,7 +120,7 @@ export default function UserPage() {
   }
 
   const handleCloseTratamientos = () => {
-    setTratamientos(true)
+    setTratamientos(false)
     console.log('estado tratamientos', tratamientos)
   }
 
@@ -146,8 +146,6 @@ export default function UserPage() {
     }
     setSelected([])
   }
-
-
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name)
@@ -293,7 +291,7 @@ export default function UserPage() {
         <Typography variant="h3" gutterBottom>
           Consultas
         </Typography>
-        <Card >
+        <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -410,15 +408,23 @@ export default function UserPage() {
       >
         <MenuItem onClick={()=> {
           setEditar(true)
-          console.log('edit', editar)
-        } }>
+          console.log('edit', editar)}}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Editar
         </MenuItem>
-        <MenuItem onClick={handleOpenTratamientos}>
+        <MenuItem onClick={() => {
+          setIdConsult(id)
+          handleOpenTratamientos()
+        }}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Ver tratamientos
-          {tratamientos && (
+        </MenuItem>
+        <MenuItem sx={{ color: 'error.main' }}>
+          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+          Delete
+        </MenuItem>
+      </Popover>
+      {tratamientos && (
             <Modal onClose={handleCloseTratamientos}>
               <h2>Tratamientos</h2>
               <TableContainer sx={{ minWidth: 800 }}>
@@ -505,15 +511,6 @@ export default function UserPage() {
               <button onClick={handleCloseTratamientos}>Cerrar</button>
             </Modal>
           )}
-        </MenuItem>
-        <MenuItem sx={{ color: 'error.main' }} 
-          onClick={()=> {
-          setTratamientos(true)
-          }}>
-          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </div>
   )
 }

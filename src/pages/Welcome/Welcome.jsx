@@ -34,12 +34,6 @@ function SignUpContainer({
         >
           Continuar
         </button>
-        {
-                    loading ? 'loading' : ''
-                }
-        {
-                    JSON.stringify(response)
-                }
       </form>
     </div>
   )
@@ -58,12 +52,7 @@ function LoginContainer({
         {
         navegar ? (<Navigate to="/dashboard/expediente" />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
         }
-        {
-                    loading ? 'loading' : ''
-                }
-        {
-                    JSON.stringify(response)
-                }
+        
       </form>
     </div>
   )
