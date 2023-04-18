@@ -61,7 +61,7 @@ export default function Nav({ openNav, onCloseNav, response }) {
             Bienvenido! Doctor...
           </Typography>
           <StyledAccount>
-            <Avatar src={account.photoURL} alt="photoURL" />
+            <Avatar src="../../../src/assets/images/avatars/avatar_14.jpg" alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
                 {response.name}
