@@ -35,7 +35,7 @@ const Main = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function DashboardLayout() {
+export default function DashboardLayoutAdmin() {
   const [open, setOpen] = useState(false)
   const { auth, setAuth } = useContext(AuthContex)
   const [response, loading, handleRequest] = useApi()
@@ -56,10 +56,7 @@ export default function DashboardLayout() {
 
   return (
     <StyledRoot>
-      <Header onOpenNav={() => {
-        setOpen(true)
-      }}
-      />
+      <Header onOpenNav={() => setOpen(true)} />
 
       <Nav openNav={open} onCloseNav={() => setOpen(false)} response={response} />
 

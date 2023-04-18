@@ -39,7 +39,7 @@ function SignUpContainer({
 }
 
 function LoginContainer({
-  handleLogin, response, setDpi, setClave, loading, navegar, handleEnter
+  handleLogin, response, setDpi, setClave, loading, navegar, handleEnter, handleNavegate, handleUser
 }) {
   return (
     <div className="form-container login-container">
@@ -49,7 +49,7 @@ function LoginContainer({
         <input placeholder="DPI" onChange={({ target: { value } }) => setDpi(value)} />
         <input placeholder="Contraseña" onKeyUp={handleEnter} type="password" onChange={({ target: { value } }) => setClave(value)} />
         {
-        navegar ? (<Navigate to="/dashboard/expediente" />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
+        navegar ? (<Navigate to={handleNavegate(response.rol)} />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
         }
       </form>
     </div>
@@ -62,6 +62,7 @@ function Login() {
   const [dpi, setDpi] = useState('')
   const [nombre, setNombre] = useState('')
   const [navegar, setNavegar] = useState(false)
+  const [rol, setRol] = useState('')
 
   const [clave, setClave] = useState('')
   const [showSignUp, setShowSignUp] = useState(false)
@@ -81,6 +82,21 @@ function Login() {
 
   const handleLogin = async () => {
     await handleRequest('POST', '/login', { dpi: parseInt(dpi, 10).toString(), clave })
+  }
+
+  const handleNavegate = (responseRol) => {
+    if (responseRol !== null && responseRol !== undefined) {
+      if (responseRol === 'Admin') {
+        setRol('/dashboardAdmin/expediente')
+      }
+      if (responseRol === 'Medico') {
+        setRol('/dashboard/expediente')
+      }
+      if (responseRol === 'Inventario') {
+        setRol('/dashboardInventario/expediente')
+      }
+    }
+    return rol
   }
 
   useEffect(() => {
@@ -105,7 +121,6 @@ function Login() {
     }
   }
 
-
   return (
     <div className="containerPrincipal">
       <div className={containerClass}>
@@ -126,6 +141,7 @@ function Login() {
           loading={loading}
           navegar={navegar}
           handleEnter={handleEnter}
+          handleNavegate={handleNavegate}
         />
         <div className="overlay-container">
           <div className="overlay">

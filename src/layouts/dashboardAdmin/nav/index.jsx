@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 import PropTypes from 'prop-types'
-import {useEffect } from 'react'
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 // @mui
 import { styled, alpha } from '@mui/material/styles'
@@ -58,10 +58,11 @@ export default function Nav({ openNav, onCloseNav, response }) {
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-            Bienvenido! Doctor...
+            Bienvenido! Administrador...
           </Typography>
           <StyledAccount>
             <Avatar src={account.photoURL} alt="photoURL" />
+
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
                 {response.name}

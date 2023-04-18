@@ -22,6 +22,7 @@ function App() {
   const [auth, setAuth] = useState({
     token: '',
     authentication: false,
+    user: '',
   })
   /*
     useEffect(() => {
