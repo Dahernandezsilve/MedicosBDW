@@ -41,10 +41,10 @@ import BotonSeleccionable from '../../components/BotonSeleccionable/BotonSelecci
 
 const TABLE_HEAD = [
   { id: ' ' },
-  { id: 'Posición', label: 'Enfermedad', alignRight: false },
-  { id: 'company', label: 'Conteo de muertes', alignRight: false },
-  { id: 'role', label: 'Descripcion', alignRight: false },
-  { id: ' ' },
+  { id: 'insumo', label: 'Insumo', alignRight: false },
+  { id: 'company', label: 'Cantidad', alignRight: false },
+  { id: 'unitHealth', label: 'Unidad de salud', alignRight: false },
+  { id: 'quantity', label: 'Cantidad ideal', alignRight: false },
 ]
 
 // ----------------------------------------------------------------------
@@ -149,14 +149,13 @@ export default function EstadoInventario(effect, deps) {
   }
   const handleInventory = async () => {
     // eslint-disable-next-line camelcase
-    await handleRequest('POST', '/verify_inventor', '', auth.token)
+    await handleRequest('GET', '/verifyInventory', '', auth.token)
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
 
   useEffect(() => {
     handleInventory()
-    console.log('respuestaInventario', response)
   }, [])
 
   useEffect(() => {
@@ -165,6 +164,7 @@ export default function EstadoInventario(effect, deps) {
         setIsNotFound(true)
       }
       setDataDisea(response.data)
+      console.log('respuestaInventario', response.data)
     }
   }, [response.data])
 
@@ -177,7 +177,7 @@ export default function EstadoInventario(effect, deps) {
         <Typography variant="h2" gutterBottom alignItems="left">
           Estado del inventario
         </Typography>
-        <BotonSeleccionable />
+        <BotonSeleccionable indicador1={dataDisea.length} />
         <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -194,27 +194,30 @@ export default function EstadoInventario(effect, deps) {
                 <TableBody>
                   {dataDisea.map((row) => {
                     const {
-                      countDeathCases,
-                      description,
-                      nameDisease,
+                      availableQuantity,
+                      healthUnit,
+                      product,
+                      totalQuantity,
                     } = row
 
                     return (
-                      <TableRow hover key={description} tabIndex={-1} role="checkbox" selected={description}>
+                      <TableRow hover key={healthUnit} tabIndex={-1} role="checkbox" selected={healthUnit}>
 
                         <TableCell align="left">  </TableCell>
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Typography variant="subtitle2" noWrap>
-                              {nameDisease}
+                              {product}
                             </Typography>
                           </Stack>
                         </TableCell>
 
-                        <TableCell align="left">{countDeathCases}</TableCell>
+                        <TableCell align="left">{availableQuantity}</TableCell>
 
-                        <TableCell align="left">{description}</TableCell>
+                        <TableCell align="left">{healthUnit}</TableCell>
+
+                        <TableCell align="left">{totalQuantity}</TableCell>
 
                       </TableRow>
                     )
