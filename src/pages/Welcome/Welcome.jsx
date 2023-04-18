@@ -93,7 +93,7 @@ function Login() {
         setRol('/dashboard/expediente')
       }
       if (responseRol === 'Inventario') {
-        setRol('/dashboardInventario/expediente')
+        setRol('/dashboardInventario/inventario')
       }
     }
     return rol

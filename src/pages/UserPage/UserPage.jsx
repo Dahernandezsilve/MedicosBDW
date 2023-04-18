@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable max-len */
 /* eslint-disable react/react-in-jsx-scope */
@@ -109,25 +111,14 @@ export default function UserPage() {
 
   const [page, setPage] = useState(0)
 
-  const [order, setOrder] = useState('asc')
-
   const [selected, setSelected] = useState([])
-
-  const [orderBy, setOrderBy] = useState('name')
 
   const [filterName, setFilterName] = useState('')
 
   const [rowsPerPage, setRowsPerPage] = useState(5)
 
-  const handleOpenTratamientos = async () => {
-    await handleTratamient()
-    console.log('estado tratamientos', tratamientos)
-    setTratamientos(true)
-  }
-
   const handleCloseTratamientos = () => {
     setTratamientos(false)
-
   }
 
   const handleOpenMenu = (event) => {
@@ -138,52 +129,14 @@ export default function UserPage() {
     setOpen(null)
   }
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc'
-    setOrder(isAsc ? 'desc' : 'asc')
-    setOrderBy(property)
-  }
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name)
-      setSelected(newSelecteds)
-      return
-    }
-    setSelected([])
-  }
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name)
-    let newSelected = []
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name)
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1))
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1))
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
-    }
-    setSelected(newSelected)
-  }
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0)
-    setRowsPerPage(parseInt(event.target.value, 10))
-  }
-
-  const handleFilterByName = (event) => {
-    setPage(0)
-    setFilterName(event.target.value)
-  }
-
   const handleTratamient = async () => {
     handleRequest('POST', '/tratamient', { id_consult }, auth.token)
+  }
+
+  const handleOpenTratamientos = async () => {
+    await handleTratamient()
+    console.log('estado tratamientos', tratamientos)
+    setTratamientos(true)
   }
 
   const handleGetPaciente = async () => {
@@ -280,10 +233,10 @@ export default function UserPage() {
                   Indice de masa corporal: {dataUser.corporal_mass}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                  Peso: {dataUser.weight}
+                  Peso: {dataUser.weight} lb
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                  Altura: {dataUser.height}
+                  Altura: {dataUser.height} m
                 </Typography>
                 <Typography variant="h6" gutterBottom>
                   Enfermedad hereditaria: {dataUser.hereditary_disease}
@@ -318,7 +271,6 @@ export default function UserPage() {
                       date, description, disease,
                       evolution, healthUnit, id, nameDoctor,
                     } = row
-                    const selectedUser = selected.indexOf(id) !== -1
 
                     return (
                       <TableRow hover key={id} tabIndex={0}>
@@ -395,16 +347,6 @@ export default function UserPage() {
               </Table>
             </TableContainer>
           </Scrollbar>
-
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={USERLIST.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
         </Card>
       </Container>
 
@@ -463,7 +405,7 @@ export default function UserPage() {
                   dose,
                   finalDate,
                   inputDescription,
-                  startDate
+                  startDate,
                 } = row
                 // eslint-disable-next-line no-unused-expressions
                 return (
@@ -524,7 +466,7 @@ export default function UserPage() {
             )}
           </Table>
         </TableContainer>
-        <button onClick={handleCloseTratamientos}>Cerrar</button>
+        <button onClick={handleCloseTratamientos} type="button">Cerrar</button>
       </Modal>
       )}
     </div>

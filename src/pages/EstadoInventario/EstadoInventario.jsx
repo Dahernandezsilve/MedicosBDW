@@ -35,6 +35,7 @@ import { UserListHead } from '../../sections/@dashboard/user'
 import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App'
+import BotonSeleccionable from '../../components/BotonSeleccionable/BotonSeleccionable'
 
 // ----------------------------------------------------------------------
 
@@ -77,7 +78,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0])
 }
 
-export default function Estadisticas(effect, deps) {
+export default function EstadoInventario(effect, deps) {
   const { auth, setAuth } = useContext(AuthContex)
 
   const [response, loading, handleRequest] = useApi()
@@ -146,15 +147,16 @@ export default function Estadisticas(effect, deps) {
     setPage(0)
     setRowsPerPage(parseInt(event.target.value, 10))
   }
-  const handleGetTopDise = async () => {
+  const handleInventory = async () => {
     // eslint-disable-next-line camelcase
-    await handleRequest('GET', '/topDis', '', auth.token)
+    await handleRequest('POST', '/verify_inventor', '', auth.token)
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
 
   useEffect(() => {
-    handleGetTopDise()
+    handleInventory()
+    console.log('respuestaInventario', response)
   }, [])
 
   useEffect(() => {
@@ -169,12 +171,13 @@ export default function Estadisticas(effect, deps) {
   return (
     <>
       <Helmet>
-        <title> Estadísticas </title>
+        <title> Estado del inventario </title>
       </Helmet>
       <Container>
         <Typography variant="h2" gutterBottom alignItems="left">
-          Estadísticas
+          Estado del inventario
         </Typography>
+        <BotonSeleccionable />
         <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -193,7 +196,7 @@ export default function Estadisticas(effect, deps) {
                     const {
                       countDeathCases,
                       description,
-                      nameDisease
+                      nameDisease,
                     } = row
 
                     return (

@@ -60,9 +60,7 @@ export default function DashboardLayout() {
         setOpen(true)
       }}
       />
-
       <Nav openNav={open} onCloseNav={() => setOpen(false)} response={response} />
-
       <Main>
         <Outlet />
       </Main>
