@@ -148,21 +148,23 @@ export default function Estadisticas(effect, deps) {
   }
   const handleGetTopDise = async () => {
     // eslint-disable-next-line camelcase
-    handleRequest('GET', '/topDis', '', auth.token)
+    await handleRequest('GET', '/topDis', '', auth.token)
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
 
-  setInterval(handleGetTopDise, 3000)
+  useEffect(() => {
+    handleGetTopDise()
+  }, [])
 
   useEffect(() => {
-    if (response.data !== undefined) {
+    if (response.data !== undefined && response.data !== null) {
       if (response.data.length <= 0) {
         setIsNotFound(true)
       }
       setDataDisea(response.data)
     }
-  }, [response])
+  }, [response.data])
 
   return (
     <>
