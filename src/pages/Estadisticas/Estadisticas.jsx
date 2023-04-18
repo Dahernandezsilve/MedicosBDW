@@ -4,7 +4,7 @@
 import { Helmet } from 'react-helmet-async'
 import { filter, set } from 'lodash'
 import { sentenceCase } from 'change-case'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 // @mui
 import {
   Card,
@@ -39,11 +39,10 @@ import { AuthContex } from '../../App'
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'Posición', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: ' ' },
+  { id: 'Posición', label: 'Enfermedad', alignRight: false },
+  { id: 'company', label: 'Conteo de muertes', alignRight: false },
+  { id: 'role', label: 'Descripcion', alignRight: false },
   { id: ' ' },
 ]
 
@@ -78,10 +77,14 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0])
 }
 
-export default function Estadisticas() {
-  const {auth, setAuth} = useContext(AuthContex)
+export default function Estadisticas(effect, deps) {
+  const { auth, setAuth } = useContext(AuthContex)
 
   const [response, loading, handleRequest] = useApi()
+
+  const [dataDisea, setDataDisea] = useState([])
+
+  const [isNotFound, setIsNotFound] = useState(false)
 
   const [open, setOpen] = useState(null)
 
@@ -143,27 +146,23 @@ export default function Estadisticas() {
     setPage(0)
     setRowsPerPage(parseInt(event.target.value, 10))
   }
-
-  const handleGetPaciente = async () => {
+  const handleGetTopDise = async () => {
     // eslint-disable-next-line camelcase
-    handleRequest('POST', '/patients', { id_patient }, auth.token)
-  }
-
-  const handleEnter = (event) => {
-    if (event.keyCode === 13) {
-      console.log('Se presionó Enter')
-      handleGetPaciente()
-      if (response.data[0] !== undefined) {
-        console.log(response.data[0].name_patient)
-      }
-    }
+    handleRequest('GET', '/topDis', '', auth.token)
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName)
+  setInterval(handleGetTopDise, 3000)
 
-  const isNotFound = !filteredUsers.length && !!filterName
+  useEffect(() => {
+    if (response.data !== undefined) {
+      if (response.data.length <= 0) {
+        setIsNotFound(true)
+      }
+      setDataDisea(response.data)
+    }
+  }, [response])
 
   return (
     <>
@@ -171,7 +170,7 @@ export default function Estadisticas() {
         <title> Estadísticas </title>
       </Helmet>
       <Container>
-        <Typography variant="h2" gutterBottom alignItems='left'>
+        <Typography variant="h2" gutterBottom alignItems="left">
           Estadísticas
         </Typography>
         <Card>
@@ -188,42 +187,30 @@ export default function Estadisticas() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  {dataDisea.map((row) => {
                     const {
-                      id, name, role, status, company, avatarUrl, isVerified,
+                      countDeathCases,
+                      description,
+                      nameDisease
                     } = row
-                    const selectedUser = selected.indexOf(name) !== -1
 
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
-                        </TableCell>
+                      <TableRow hover key={description} tabIndex={-1} role="checkbox" selected={description}>
+
+                        <TableCell align="left">  </TableCell>
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {nameDisease}
                             </Typography>
                           </Stack>
                         </TableCell>
 
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{countDeathCases}</TableCell>
 
-                        <TableCell align="left">{role}</TableCell>
+                        <TableCell align="left">{description}</TableCell>
 
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-                        <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon="eva:more-vertical-fill" />
-                          </IconButton>
-                        </TableCell>
                       </TableRow>
                     )
                   })}
@@ -309,5 +296,5 @@ export default function Estadisticas() {
         </MenuItem>
       </Popover>
     </>
-  ) 
+  )
 }

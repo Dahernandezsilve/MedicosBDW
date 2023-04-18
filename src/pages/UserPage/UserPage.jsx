@@ -5,7 +5,9 @@
 import { Helmet } from 'react-helmet-async'
 import { filter, set } from 'lodash'
 import { sentenceCase } from 'change-case'
-import { useContext, useState, useEffect } from 'react'
+import {
+  useContext, useState, useEffect, createContext,
+} from 'react'
 // @mui
 import {
   Card,
@@ -48,7 +50,6 @@ const TABLE_HEAD = [
   { id: 'disease', label: 'Enfermedad', alignRight: false },
   { id: '' },
 ]
-
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -81,7 +82,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
-  const {auth, setAuth} = useContext(AuthContex)
+  const { auth, setAuth } = useContext(AuthContex)
 
   const [response, loading, handleRequest] = useApi()
 
@@ -94,6 +95,7 @@ export default function UserPage() {
   const [id_consult, setIdConsult] = useState('')
 
   const [isNotFound, setIsNotFound] = useState(false)
+  const [isNotFoundTratamient, setIsNotFoundTratamient] = useState(false)
 
   const [editar, setEditar] = useState(false)
   const [tratamientos, setTratamientos] = useState(false)
@@ -102,6 +104,8 @@ export default function UserPage() {
   const [open, setOpen] = useState(null)
 
   const [dataExpedient, setDataExpedient] = useState([])
+
+  const [dataTratamient, setDataTratamient] = useState([])
 
   const [page, setPage] = useState(0)
 
@@ -115,13 +119,15 @@ export default function UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5)
 
-  const handleOpenTratamientos = () => {
+  const handleOpenTratamientos = async () => {
+    await handleTratamient()
+    console.log('estado tratamientos', tratamientos)
     setTratamientos(true)
   }
 
   const handleCloseTratamientos = () => {
     setTratamientos(false)
-    console.log('estado tratamientos', tratamientos)
+
   }
 
   const handleOpenMenu = (event) => {
@@ -176,8 +182,6 @@ export default function UserPage() {
     setFilterName(event.target.value)
   }
 
-
-
   const handleTratamient = async () => {
     handleRequest('POST', '/tratamient', { id_consult }, auth.token)
   }
@@ -193,16 +197,22 @@ export default function UserPage() {
   }
 
   useEffect(() => {
-    if(response.data){
+    if (response.data) {
       if (response.data[0].addiction !== undefined) {
         setExpedienteS(true)
         console.log(response.data[0].name_patient)
         setDataUser(response.data[0])
         console.log('response45', response)
+      } else if (response.data[0].dose !== undefined) {
+        setDataTratamient(response.data)
+        console.log('response93', response)
+        if (response.data.length <= 0) {
+          setIsNotFoundTratamient(true)
+        }
       } else {
-          setDataExpedient(response.data)
-          console.log('response46', response)
-        if(response.data.length<=0) {
+        setDataExpedient(response.data)
+        console.log('response46', response)
+        if (response.data.length <= 0) {
           setIsNotFound(true)
         }
       }
@@ -225,13 +235,15 @@ export default function UserPage() {
         <title> Expediente </title>
       </Helmet>
       <Container>
-        <Typography variant="h2" gutterBottom alignItems='left'>
+        <Typography variant="h2" gutterBottom alignItems="left">
           Expediente:
         </Typography>
-        <div onKeyUp={handleEnter} 
-             onChange={({ target: { value } }) => {
-             setIdPatient(value)
-            }}>
+        <div
+          onKeyUp={handleEnter}
+          onChange={({ target: { value } }) => {
+            setIdPatient(value)
+          }}
+        >
           <UserListToolbar />
         </div>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -304,7 +316,7 @@ export default function UserPage() {
                   {dataExpedient.map((row) => {
                     const {
                       date, description, disease,
-                      evolution, healthUnit, id, nameDoctor
+                      evolution, healthUnit, id, nameDoctor,
                     } = row
                     const selectedUser = selected.indexOf(id) !== -1
 
@@ -328,7 +340,15 @@ export default function UserPage() {
                         <TableCell style={{ fontSize: 10 }} align="right">{disease}</TableCell>
 
                         <TableCell style={{ fontSize: 10 }} align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={(event) => {
+                              setIdConsult(id)
+                              handleOpenMenu(event)
+                              console.log(id)
+                            }}
+                          >
                             <Iconify icon="eva:more-vertical-fill" />
                           </IconButton>
                         </TableCell>
@@ -406,16 +426,18 @@ export default function UserPage() {
           },
         }}
       >
-        <MenuItem onClick={()=> {
+        <MenuItem onClick={() => {
           setEditar(true)
-          console.log('edit', editar)}}>
+          console.log('edit', editar)
+        }}
+        >
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Editar
         </MenuItem>
         <MenuItem onClick={() => {
-          setIdConsult(id)
           handleOpenTratamientos()
-        }}>
+        }}
+        >
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Ver tratamientos
         </MenuItem>
@@ -425,92 +447,86 @@ export default function UserPage() {
         </MenuItem>
       </Popover>
       {tratamientos && (
-            <Modal onClose={handleCloseTratamientos}>
-              <h2>Tratamientos</h2>
-              <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <UserListHead
-                  headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
-                  numSelected={selected.length}
-                />
-                <TableBody>
-                  {dataExpedient.map((row) => {
-                    const {
-                      date, description, disease,
-                      evolution, healthUnit, id, nameDoctor
-                    } = row
-                    const selectedUser = selected.indexOf(id) !== -1
+      <Modal onClose={handleCloseTratamientos}>
+        <h2>Tratamientos</h2>
+        <TableContainer sx={{ minWidth: 800 }}>
+          <Table>
+            <UserListHead
+              headLabel={TABLE_HEAD}
+              rowCount={USERLIST.length}
+              numSelected={selected.length}
+            />
+            <TableBody>
+              {dataTratamient.map((row) => {
+                const {
+                  count,
+                  dose,
+                  finalDate,
+                  inputDescription,
+                  startDate
+                } = row
+                // eslint-disable-next-line no-unused-expressions
+                return (
+                  <TableRow hover key={dose} tabIndex={0}>
+                    <TableCell style={{ fontSize: 10 }} component="th" scope="row" padding="none">
+                      {inputDescription}
+                    </TableCell>
 
-                    return (
-                      <TableRow hover key={id} tabIndex={0}>
-                        <TableCell style={{ fontSize: 10 }} component="th" scope="row" padding="none">
-                          {date}
-                        </TableCell>
+                    <TableCell style={{ fontSize: 10 }} align="left">{dose}</TableCell>
 
-                        <TableCell style={{ fontSize: 10 }} align="left">{nameDoctor}</TableCell>
+                    <TableCell style={{ fontSize: 10 }} align="left">{count}</TableCell>
 
-                        <TableCell style={{ fontSize: 10 }} align="left">{description}</TableCell>
+                    <TableCell style={{ fontSize: 10 }} align="left">{finalDate}
+                    </TableCell>
 
-                        <TableCell style={{ fontSize: 10 }} align="left">{evolution}
-                        </TableCell>
+                    <TableCell style={{ fontSize: 10 }} align="left">
+                      {startDate}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+              {emptyRows > 0 && (
+              <TableRow style={{ height: 53 * emptyRows }}>
+                <TableCell colSpan={6} />
+              </TableRow>
+              )}
+            </TableBody>
 
-                        <TableCell style={{ fontSize: 10 }} align="left">
-                          {healthUnit}
-                        </TableCell>
+            {isNotFoundTratamient && (
+            <TableBody>
+              <TableRow>
+                <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                  <Paper
+                    sx={{
+                      textAlign: 'center',
+                    }}
+                  >
+                    <Typography variant="h6" paragraph>
+                      Not found
+                    </Typography>
 
-                        <TableCell style={{ fontSize: 10 }} align="right">{disease}</TableCell>
-
-                        <TableCell style={{ fontSize: 10 }} align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon="eva:more-vertical-fill" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            Not found
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>
-                              &quot;
-                              {filterName}
-                              &quot;
-                            </strong>
-                            .
-                            <br />
-                            {' '}
-                            Try checking for typos or using complete words.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-              </TableContainer>
-              <button onClick={handleCloseTratamientos}>Cerrar</button>
-            </Modal>
-          )}
+                    <Typography variant="body2">
+                      No results found for &nbsp;
+                      <strong>
+                        &quot;
+                        {filterName}
+                        &quot;
+                      </strong>
+                      .
+                      <br />
+                      {' '}
+                      Try checking for typos or using complete words.
+                    </Typography>
+                  </Paper>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+            )}
+          </Table>
+        </TableContainer>
+        <button onClick={handleCloseTratamientos}>Cerrar</button>
+      </Modal>
+      )}
     </div>
   )
 }

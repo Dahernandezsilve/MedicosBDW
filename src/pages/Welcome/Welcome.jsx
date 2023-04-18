@@ -12,7 +12,7 @@ import { set } from 'lodash'
 
 
 function SignUpContainer({
-  handleLogin, dpi, nombre, response, setDpi, setNombre, loading,
+  handleLogin, dpi, nombre, response, setDpi, setNombre, loading, handleEnter
 }) {
   return (
     <div className="form-container sign-up-container">
@@ -28,7 +28,6 @@ function SignUpContainer({
           type="button"
           onClick={() => {
             handleLogin()
-
             navigate('Exit')
           }}
         >
@@ -40,7 +39,7 @@ function SignUpContainer({
 }
 
 function LoginContainer({
-  handleLogin, response, setDpi, setClave, loading, navegar
+  handleLogin, response, setDpi, setClave, loading, navegar, handleEnter
 }) {
   return (
     <div className="form-container login-container">
@@ -48,11 +47,10 @@ function LoginContainer({
         <img className="svgI" src={MS} />
         <h1 className="titleForm">Ingresar</h1>
         <input placeholder="DPI" onChange={({ target: { value } }) => setDpi(value)} />
-        <input placeholder="Contraseña" onChange={({ target: { value } }) => setClave(value)} />
+        <input placeholder="Contraseña" onKeyUp={handleEnter} type="password" onChange={({ target: { value } }) => setClave(value)} />
         {
         navegar ? (<Navigate to="/dashboard/expediente" />) : (<button className="btnForm" type="button" onClick={handleLogin}>Acceder</button>)
         }
-        
       </form>
     </div>
   )
@@ -100,43 +98,54 @@ function Login() {
     }
   }, [response])
 
+  const handleEnter = async (event) => {
+    if (event.keyCode === 13) {
+      console.log('Se presionó Enter')
+      handleLogin()
+    }
+  }
+
+
   return (
-    <div className={containerClass}>
-      <SignUpContainer
-        handleLogin={handleLogin}
-        dpi={dpi}
-        nombre={nombre}
-        response={response}
-        setDpi={setDpi}
-        setNombre={setNombre}
-        loading={loading}
-      />
-      <LoginContainer
-        handleLogin={handleLogin}
-        response={response}
-        setDpi={setDpi}
-        setClave={setClave}
-        loading={loading}
-        navegar={navegar}
-      />
-      <div className="overlay-container">
-        <div className="overlay">
-          <div className={`overlay-panel overlay-left ${showLogin ? 'show' : ''}`}>
-            <h1>¿Ya tienes un usuario?</h1>
-            <p>Accede con tu DPI aquí</p>
-            <img className="flechaI" src={flecha} />
-            <button className="btn" onClick={handleLoginClick}>Acceder</button>
-          </div>
-          <div className={`overlay-panel overlay-right ${showSignUp ? 'show' : ''}`}>
-            <h1>Bienvenido</h1>
-            <p>
-              ¿Tienes problemas para acceder?
-              <br />
-              {' '}
-              Regístrate aquí
-            </p>
-            <img className="flechaD" src={flecha} />
-            <button className="btn" onClick={handleSignUpClick}>Registrarse</button>
+    <div className="containerPrincipal">
+      <div className={containerClass}>
+        <SignUpContainer
+          handleLogin={handleLogin}
+          dpi={dpi}
+          nombre={nombre}
+          response={response}
+          setDpi={setDpi}
+          setNombre={setNombre}
+          loading={loading}
+        />
+        <LoginContainer
+          handleLogin={handleLogin}
+          response={response}
+          setDpi={setDpi}
+          setClave={setClave}
+          loading={loading}
+          navegar={navegar}
+          handleEnter={handleEnter}
+        />
+        <div className="overlay-container">
+          <div className="overlay">
+            <div className={`overlay-panel overlay-left ${showLogin ? 'show' : ''}`}>
+              <h1>¿Ya tienes un usuario?</h1>
+              <p>Accede con tu DPI aquí</p>
+              <img className="flechaI" src={flecha} />
+              <button className="btn" onClick={handleLoginClick}>Acceder</button>
+            </div>
+            <div className={`overlay-panel overlay-right ${showSignUp ? 'show' : ''}`}>
+              <h1>Bienvenido</h1>
+              <p>
+                ¿Tienes problemas para acceder?
+                <br />
+                {' '}
+                Regístrate aquí
+              </p>
+              <img className="flechaD" src={flecha} />
+              <button className="btn" onClick={handleSignUpClick}>Registrarse</button>
+            </div>
           </div>
         </div>
       </div>
