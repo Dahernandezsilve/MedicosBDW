@@ -35,8 +35,8 @@ export default function Router() {
       path: '/dashboardAdmin',
       element: <DashboardLayoutAdmin />,
       children: [
-        { element: <Navigate to="/inventario" />, index: true },
-        { path: 'inventario', element: <EstadoInventario /> },
+        { element: <Navigate to="/expediente" />, index: true },
+        { path: 'expediente', element: <UserPage /> },
         { path: 'estadisticas', element: <Estadisticas /> },
         { path: 'nuevaconsulta', element: <NuevaConsulta /> },
       ],

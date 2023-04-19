@@ -2,13 +2,7 @@
 import { useState } from 'react'
 import './BotonSeleccionable.css'
 
-export default function BotonSeleccionable({ indicador1 }) {
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  const handleButtonClick = (index) => {
-    setActiveIndex(index)
-  }
-
+export default function BotonSeleccionable({ activeIndex,  handleButtonClick, indicador1, indicador2 }) {
   return (
     <div className="button-container">
       <button
@@ -28,7 +22,7 @@ export default function BotonSeleccionable({ indicador1 }) {
       >
         Inventario cercano a vencer
         <span className={`indicator ${activeIndex === 1 ? 'active' : ''}${activeIndex === 1 && ' zero'}`}>
-          10
+          {indicador2}
         </span>
       </button>
     </div>

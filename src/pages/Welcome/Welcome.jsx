@@ -57,7 +57,7 @@ function LoginContainer({
 }
 
 function Login() {
-  const {auth, setAuth} = useContext(AuthContex)
+  const { auth, setAuth } = useContext(AuthContex)
   const [response, loading, handleRequest] = useApi()
   const [dpi, setDpi] = useState('')
   const [nombre, setNombre] = useState('')

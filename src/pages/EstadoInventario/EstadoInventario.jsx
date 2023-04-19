@@ -47,6 +47,15 @@ const TABLE_HEAD = [
   { id: 'quantity', label: 'Cantidad ideal', alignRight: false },
 ]
 
+const expiredList = [
+  { id: ' ' },
+  { id: 'insumo', label: 'Insumo', alignRight: false },
+  { id: 'company', label: 'Cantidad', alignRight: false },
+  { id: 'unitHealth', label: 'Unidad de salud', alignRight: false },
+  { id: 'quantity', label: 'Cantidad ideal', alignRight: false },
+  { id: 'expireDate', label: 'Fecha de expiración', alignRight: false },
+]
+
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -85,6 +94,8 @@ export default function EstadoInventario(effect, deps) {
 
   const [dataDisea, setDataDisea] = useState([])
 
+  const [dataExpire, setDataExpire] = useState([])
+
   const [isNotFound, setIsNotFound] = useState(false)
 
   const [open, setOpen] = useState(null)
@@ -100,6 +111,10 @@ export default function EstadoInventario(effect, deps) {
   const [filterName] = useState('')
 
   const [rowsPerPage, setRowsPerPage] = useState(5)
+
+  // Botones seleccionables
+
+  const [activeIndex, setActiveIndex] = useState(0)
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget)
@@ -147,9 +162,19 @@ export default function EstadoInventario(effect, deps) {
     setPage(0)
     setRowsPerPage(parseInt(event.target.value, 10))
   }
+
   const handleInventory = async () => {
     // eslint-disable-next-line camelcase
     await handleRequest('GET', '/verifyInventory', '', auth.token)
+  }
+
+  const handleExpired = async () => {
+    // eslint-disable-next-line camelcase
+    await handleRequest('GET', '/verifyExpired', '', auth.token)
+  }
+
+  const handleButtonClick = (index) => {
+    setActiveIndex(index)
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
@@ -159,12 +184,27 @@ export default function EstadoInventario(effect, deps) {
   }, [])
 
   useEffect(() => {
+    if (activeIndex === 0) {
+      handleInventory()
+      console.log('respuestaInventory', response.data)
+    }
+    if (activeIndex === 1) {
+      handleExpired()
+      console.log('respuestaExpired', response.data)
+    }
+  }, [activeIndex])
+
+  useEffect(() => {
     if (response.data !== undefined && response.data !== null) {
       if (response.data.length <= 0) {
         setIsNotFound(true)
       }
-      setDataDisea(response.data)
-      console.log('respuestaInventario', response.data)
+      if (activeIndex === 0) {
+        setDataDisea(response.data)
+      } else if (activeIndex === 1) {
+        setDataExpire(response.data)
+      }
+      console.log('respuestaGeneral', response.data)
     }
   }, [response.data])
 
@@ -177,92 +217,186 @@ export default function EstadoInventario(effect, deps) {
         <Typography variant="h2" gutterBottom alignItems="left">
           Estado del inventario
         </Typography>
-        <BotonSeleccionable indicador1={dataDisea.length} />
-        <Card>
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <UserListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {dataDisea.map((row) => {
-                    const {
-                      availableQuantity,
-                      healthUnit,
-                      product,
-                      totalQuantity,
-                    } = row
-
-                    return (
-                      <TableRow hover key={healthUnit} tabIndex={-1} role="checkbox" selected={healthUnit}>
-
-                        <TableCell align="left">  </TableCell>
-
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Typography variant="subtitle2" noWrap>
-                              {product}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell align="left">{availableQuantity}</TableCell>
-
-                        <TableCell align="left">{healthUnit}</TableCell>
-
-                        <TableCell align="left">{totalQuantity}</TableCell>
-
-                      </TableRow>
-                    )
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
+        <BotonSeleccionable activeIndex={activeIndex} handleButtonClick={handleButtonClick} indicador1={dataDisea.length} indicador2={dataExpire.length} />
+        { activeIndex === 1 ? (
+          <Card>
+            <Scrollbar>
+              <TableContainer sx={{ minWidth: 800 }}>
+                <Table>
+                  <UserListHead
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={expiredList}
+                    rowCount={USERLIST.length}
+                    numSelected={selected.length}
+                    onRequestSort={handleRequestSort}
+                    onSelectAllClick={handleSelectAllClick}
+                  />
                   <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            Not found
-                          </Typography>
+                    {dataExpire.map((row) => {
+                      const {
+                        availableQuantity,
+                        healthUnit,
+                        product,
+                        totalQuantity,
+                        expiredDate,
+                      } = row
 
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>
-                              &quot;
-                              {filterName}
-                              &quot;
-                            </strong>
-                            .
-                            <br />
-                            {' '}
-                            Try checking for typos or using complete words.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
+                      return (
+                        <TableRow hover key={healthUnit} tabIndex={-1} role="checkbox" selected={healthUnit}>
+
+                          <TableCell align="left">  </TableCell>
+
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Typography variant="subtitle2" noWrap>
+                                {product}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+
+                          <TableCell align="left">{availableQuantity}</TableCell>
+
+                          <TableCell align="left">{healthUnit}</TableCell>
+
+                          <TableCell align="left">{totalQuantity}</TableCell>
+
+                          <TableCell align="left">{expiredDate}</TableCell>
+
+                        </TableRow>
+                      )
+                    })}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
                   </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
-        </Card>
+
+                  {isNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <Paper
+                            sx={{
+                              textAlign: 'center',
+                            }}
+                          >
+                            <Typography variant="h6" paragraph>
+                              Not found
+                            </Typography>
+
+                            <Typography variant="body2">
+                              No results found for &nbsp;
+                              <strong>
+                                &quot;
+                                {filterName}
+                                &quot;
+                              </strong>
+                              .
+                              <br />
+                              {' '}
+                              Try checking for typos or using complete words.
+                            </Typography>
+                          </Paper>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  )}
+                </Table>
+              </TableContainer>
+            </Scrollbar>
+          </Card>
+        ) : ''}
+        {
+          activeIndex === 0 ? (
+            <Card>
+              <Scrollbar>
+                <TableContainer sx={{ minWidth: 800 }}>
+                  <Table>
+                    <UserListHead
+                      order={order}
+                      orderBy={orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={USERLIST.length}
+                      numSelected={selected.length}
+                      onRequestSort={handleRequestSort}
+                      onSelectAllClick={handleSelectAllClick}
+                    />
+                    <TableBody>
+                      {dataDisea.map((row) => {
+                        const {
+                          availableQuantity,
+                          healthUnit,
+                          product,
+                          totalQuantity,
+                        } = row
+
+                        return (
+                          <TableRow hover key={healthUnit} tabIndex={-1} role="checkbox" selected={healthUnit}>
+
+                            <TableCell align="left">  </TableCell>
+
+                            <TableCell component="th" scope="row" padding="none">
+                              <Stack direction="row" alignItems="center" spacing={2}>
+                                <Typography variant="subtitle2" noWrap>
+                                  {product}
+                                </Typography>
+                              </Stack>
+                            </TableCell>
+
+                            <TableCell align="left">{availableQuantity}</TableCell>
+
+                            <TableCell align="left">{healthUnit}</TableCell>
+
+                            <TableCell align="left">{totalQuantity}</TableCell>
+
+                          </TableRow>
+                        )
+                      })}
+                      {emptyRows > 0 && (
+                        <TableRow style={{ height: 53 * emptyRows }}>
+                          <TableCell colSpan={6} />
+                        </TableRow>
+                      )}
+                    </TableBody>
+
+                    {isNotFound && (
+                      <TableBody>
+                        <TableRow>
+                          <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                            <Paper
+                              sx={{
+                                textAlign: 'center',
+                              }}
+                            >
+                              <Typography variant="h6" paragraph>
+                                Not found
+                              </Typography>
+
+                              <Typography variant="body2">
+                                No results found for &nbsp;
+                                <strong>
+                                  &quot;
+                                  {filterName}
+                                  &quot;
+                                </strong>
+                                .
+                                <br />
+                                {' '}
+                                Try checking for typos or using complete words.
+                              </Typography>
+                            </Paper>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    )}
+                  </Table>
+                </TableContainer>
+              </Scrollbar>
+            </Card>
+          ) : ('')
+        }
       </Container>
 
       <Popover
