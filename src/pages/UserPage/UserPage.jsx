@@ -41,6 +41,7 @@ import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App.jsx'
 import Modal from '../../components/Modal/Modal'
+import './UserPage.css'
 
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
@@ -125,16 +126,16 @@ export default function UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5)
 
-  const handleCloseTratamientos = () => {
-    setTratamientos(false)
-  }
-
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget)
   }
 
   const handleCloseMenu = () => {
     setOpen(null)
+  }
+
+  const handleCloseTratamientos = () => {
+    setTratamientos(false)
   }
 
   const handleTratamient = async () => {
@@ -145,6 +146,20 @@ export default function UserPage() {
     await handleTratamient()
     console.log('estado tratamientos', tratamientos)
     setTratamientos(true)
+  }
+
+  const handleCloseEditar = () => {
+    setEditar(false)
+  }
+
+  const handleEditar = async () => {
+    handleRequest('POST', '/tratamient', { id_consult }, auth.token)
+  }
+
+  const handleOpenEditar = async () => {
+    await handleEditar()
+    console.log('estado editar', editar)
+    setEditar(true)
   }
 
   const handleGetPaciente = async () => {
@@ -186,6 +201,15 @@ export default function UserPage() {
       await handleGetPaciente()
       await handleExpediente()
     }
+  }
+
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // Aquí puedes agregar tu lógica para enviar el formulario
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0
@@ -377,8 +401,7 @@ export default function UserPage() {
         }}
       >
         <MenuItem onClick={() => {
-          setEditar(true)
-          console.log('edit', editar)
+          handleOpenEditar()
         }}
         >
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
@@ -475,6 +498,72 @@ export default function UserPage() {
           </Table>
         </TableContainer>
         <button onClick={handleCloseTratamientos} type="button">Cerrar</button>
+      </Modal>
+      )}
+      {editar && (
+      <Modal onClose={handleCloseEditar}>
+        <h2>Editar consulta</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Fecha</label>
+              <input
+                type="text"
+                id="nombre"
+                value={dataExpedient[id_consult].date}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+            </div>
+            <div className="form-column">
+              <label>Doctor</label>
+              <input
+                id="apellido"
+                value={apellido}
+                onChange={(e) => setApellido(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Descripción</label>
+              <input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="form-column">
+              <label>Evolución</label>
+              <input
+                type="text"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Unidad de salud</label>
+              <input
+                type="text"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="form-column">
+              <label>Enfermedad</label>
+              <input
+                type="text"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <button type="submit">Enviar</button>
+        </form>
       </Modal>
       )}
     </div>
