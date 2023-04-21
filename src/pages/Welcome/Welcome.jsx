@@ -87,7 +87,7 @@ function Login() {
   const handleNavegate = (responseRol) => {
     if (responseRol !== null && responseRol !== undefined) {
       if (responseRol === 'Admin') {
-        setRol('/dashboardAdmin/expediente')
+        setRol('/dashboardAdmin/Bitacora')
       }
       if (responseRol === 'Medico') {
         setRol('/dashboard/expediente')

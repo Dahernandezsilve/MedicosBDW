@@ -57,9 +57,9 @@ const TABLE_HEAD = [
 const tableTratamientos = [
   { id: 'descripción', label: 'Descripción', alignRight: false },
   { id: 'dosis', label: 'Dosis', alignRight: false },
-  { id: 'cantidad', label: 'Cantidad', alignRight: false },
   { id: 'fechaInicio', label: 'Fecha de inicio', alignRight: false },
   { id: 'fechaFin', label: 'Fecha de finalización', alignRight: false },
+  { id: '' },
 ]
 // ----------------------------------------------------------------------
 
@@ -105,10 +105,14 @@ export default function UserPage() {
 
   const [id_consult, setIdConsult] = useState('')
 
+  const [id_insumo, setIdInsumo] = useState('')
+
   const [isNotFound, setIsNotFound] = useState(false)
   const [isNotFoundTratamient, setIsNotFoundTratamient] = useState(false)
 
   const [editar, setEditar] = useState(false)
+  const [general, setGeneral] = useState(false)
+  const [dataEdit, setDataEdit] = useState({})
   const [tratamientos, setTratamientos] = useState(false)
   const [eliminar, setEliminar] = useState(false)
 
@@ -117,6 +121,8 @@ export default function UserPage() {
   const [dataExpedient, setDataExpedient] = useState([])
 
   const [dataTratamient, setDataTratamient] = useState([])
+  const [dataEditTratamient, setDataEditTratamient] = useState({})
+  const [editTratamient, setEditTratamient] = useState(false)
 
   const [page, setPage] = useState(0)
 
@@ -153,11 +159,69 @@ export default function UserPage() {
   }
 
   const handleEditar = async () => {
-    handleRequest('POST', '/tratamient', { id_consult }, auth.token)
+    console.log('Consulta', id_consult)
+    console.log('Paciente', id_patient)
+    console.log('dataEdit', dataEdit)
+    await handleRequest('POST', '/editConsult', {
+      date: dataEdit.date,
+      nameDoctor: dataEdit.nameDoctor,
+      evolution: dataEdit.evolution,
+      description: dataEdit.description,
+      disease: dataEdit.disease,
+      healthUnit: dataEdit.healthUnit,
+      id_consult,
+      id_patient,
+    }, auth.token)
   }
 
-  const handleOpenEditar = async () => {
-    await handleEditar()
+  const handleGeneral = async () => {
+    console.log('dataUser', dataUser)
+    await handleRequest('POST', '/editPatient', {
+      nombre: dataUser.name_patient,
+      direccion: dataUser.address,
+      telefono: dataUser.numberTel,
+      fecha_nacimiento: dataUser.birthdate,
+      genero: dataUser.genre,
+      adicciones: dataUser.addiction,
+      fecha_inicio: dataUser.start_date,
+      indice_masa_corporal: dataUser.corporal_mass,
+      peso: dataUser.weight,
+      altura: dataUser.height,
+      enfermedad_hereditaria: dataUser.hereditary_disease,
+      status: dataUser.status,
+      dpi: id_patient,
+    }, auth.token)
+  }
+
+  const handleCloseGeneral = () => {
+    setGeneral(false)
+  }
+  const handleOpenGeneral = () => {
+    setGeneral(true)
+  }
+
+  const handleOpenEditTratamientos = () => {
+    console.log('estado editar', editar)
+    setEditTratamient(true)
+  }
+
+  const handleCloseEditTratamientos = () => {
+    console.log('estado editar', editar)
+    setEditTratamient(false)
+  }
+
+  const handleEditTratamientos = async () => {
+    console.log('dataTratamient', dataTratamient)
+    await handleRequest('POST', '/editTratamient', {
+      idInsumo: id_insumo,
+      dosis: dataEditTratamient.dose,
+      fechaInicio: dataEditTratamient.startDate,
+      fechaFinal: dataEditTratamient.finalDate,
+      consulta: id_consult,
+    }, auth.token)
+  }
+
+  const handleOpenEditar = () => {
     console.log('estado editar', editar)
     setEditar(true)
   }
@@ -174,22 +238,25 @@ export default function UserPage() {
 
   useEffect(() => {
     if (response.data) {
-      if (response.data[0].addiction !== undefined) {
-        setExpedienteS(true)
-        console.log(response.data[0].name_patient)
-        setDataUser(response.data[0])
-        console.log('response45', response)
-      } else if (response.data[0].dose !== undefined) {
-        setDataTratamient(response.data)
-        console.log('response93', response)
-        if (response.data.length <= 0) {
-          setIsNotFoundTratamient(true)
-        }
-      } else {
-        setDataExpedient(response.data)
-        console.log('response46', response)
-        if (response.data.length <= 0) {
-          setIsNotFound(true)
+      console.log('responseEffect', response)
+      if (response.data.length > 0) {
+        if (response.data[0].addiction !== undefined && response.data[0].addiction !== null) {
+          setExpedienteS(true)
+          console.log(response.data[0].name_patient)
+          setDataUser(response.data[0])
+          console.log('response45', response)
+        } else if (response.data[0].dose !== undefined && response.data[0].dose !== null) {
+          setDataTratamient(response.data)
+          console.log('response93', response)
+          if (response.data.length <= 0) {
+            setIsNotFoundTratamient(true)
+          }
+        } else {
+          setDataExpedient(response.data)
+          console.log('response46', response)
+          if (response.data.length <= 0) {
+            setIsNotFound(true)
+          }
         }
       }
     }
@@ -202,10 +269,6 @@ export default function UserPage() {
       await handleExpediente()
     }
   }
-
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
-  const [email, setEmail] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -230,6 +293,14 @@ export default function UserPage() {
           }}
         >
           <UserListToolbar />
+          <MenuItem onClick={() => {
+            handleOpenGeneral()
+            handleCloseMenu()
+          }}
+          >
+            <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+            Editar
+          </MenuItem>
         </div>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           {
@@ -244,7 +315,7 @@ export default function UserPage() {
                   Dirección: {dataUser.address}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                  Teléfono: {dataUser.address}
+                  Teléfono: {dataUser.numberTel}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
                   Fecha de nacimiento: {dataUser.birthdate}
@@ -271,7 +342,7 @@ export default function UserPage() {
                   Altura: {dataUser.height} m
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                  Enfermedad hereditaria: {dataUser.hereditary_disease}
+                  Enfermedad hereditaria: {dataUser.hereditary_disease === false ? 'No padece' : 'Sí padece'}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
                   Estado: {dataUser.status}
@@ -329,6 +400,8 @@ export default function UserPage() {
                             color="inherit"
                             onClick={(event) => {
                               setIdConsult(id)
+                              setDataEdit(row)
+                              console.log('dataEdit', dataEdit)
                               handleOpenMenu(event)
                               console.log(id)
                             }}
@@ -402,6 +475,7 @@ export default function UserPage() {
       >
         <MenuItem onClick={() => {
           handleOpenEditar()
+          handleCloseMenu()
         }}
         >
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
@@ -409,6 +483,7 @@ export default function UserPage() {
         </MenuItem>
         <MenuItem onClick={() => {
           handleOpenTratamientos()
+          handleCloseMenu()
         }}
         >
           <img src="../../../src/assets/eye.svg" alt="Ministerio de salud" />
@@ -432,11 +507,11 @@ export default function UserPage() {
             <TableBody>
               {dataTratamient.map((row) => {
                 const {
-                  count,
                   dose,
                   finalDate,
                   inputDescription,
                   startDate,
+                  id,
                 } = row
                 // eslint-disable-next-line no-unused-expressions
                 return (
@@ -447,13 +522,23 @@ export default function UserPage() {
 
                     <TableCell style={{ fontSize: 10 }} align="left">{dose}</TableCell>
 
-                    <TableCell style={{ fontSize: 10 }} align="left">{count}</TableCell>
+                    <TableCell style={{ fontSize: 10 }} align="left">
+                      {startDate}
+                    </TableCell>
 
                     <TableCell style={{ fontSize: 10 }} align="left">{finalDate}
                     </TableCell>
 
-                    <TableCell style={{ fontSize: 10 }} align="left">
-                      {startDate}
+                    <TableCell style={{ fontSize: 10 }} align="right">
+                      <MenuItem onClick={() => {
+                        setIdInsumo(id)
+                        setDataEditTratamient(row)
+                        handleOpenEditTratamientos()
+                      }}
+                      >
+                        <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                        Editar
+                      </MenuItem>
                     </TableCell>
                   </TableRow>
                 )
@@ -509,17 +594,18 @@ export default function UserPage() {
               <label>Fecha</label>
               <input
                 type="text"
-                id="nombre"
-                value={dataExpedient[id_consult].date}
-                onChange={(e) => setNombre(e.target.value)}
+                id="date"
+                value={dataEdit.date}
+                onChange={(e) => setDataEdit({ ...dataEdit, date: e.target.value })}
               />
             </div>
             <div className="form-column">
               <label>Doctor</label>
               <input
-                id="apellido"
-                value={apellido}
-                onChange={(e) => setApellido(e.target.value)}
+                type="text"
+                id="nameDoctor"
+                value={dataEdit.nameDoctor}
+                onChange={(e) => setDataEdit({ ...dataEdit, nameDoctor: e.target.value })}
               />
             </div>
           </div>
@@ -527,18 +613,18 @@ export default function UserPage() {
             <div className="form-column">
               <label>Descripción</label>
               <input
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="description"
+                value={dataEdit.description}
+                onChange={(e) => setDataEdit({ ...dataEdit, description: e.target.value })}
               />
             </div>
             <div className="form-column">
               <label>Evolución</label>
               <input
                 type="text"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="evolution"
+                value={dataEdit.evolution}
+                onChange={(e) => setDataEdit({ ...dataEdit, evolution: e.target.value })}
               />
             </div>
           </div>
@@ -547,22 +633,179 @@ export default function UserPage() {
               <label>Unidad de salud</label>
               <input
                 type="text"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="healthUnit"
+                value={dataEdit.healthUnit}
+                onChange={(e) => setDataEdit({ ...dataEdit, healthUnit: e.target.value })}
               />
             </div>
             <div className="form-column">
               <label>Enfermedad</label>
               <input
                 type="text"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="disease"
+                value={dataEdit.disease}
+                onChange={(e) => setDataEdit({ ...dataEdit, disease: e.target.value })}
               />
             </div>
           </div>
-          <button type="submit">Enviar</button>
+          <button
+            type="submit"
+            onClick={() => {
+              handleEditar()
+              handleCloseEditar()
+            }}>Enviar</button>
+        </form>
+      </Modal>
+      )}
+      {general && (
+      <Modal onClose={handleCloseGeneral}>
+        <h2>Editar información general</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Nombre</label>
+              <input
+                type="text"
+                id="date"
+                value={dataUser.name_patient}
+                onChange={(e) => setDataUser({ ...dataUser, name_patient: e.target.value })}
+              />
+            </div>
+            <div className="form-column">
+              <label>Fecha inicio</label>
+              <input
+                type="text"
+                id="nameDoctor"
+                value={dataUser.start_date}
+                onChange={(e) => setDataUser({ ...dataUser, startDate: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Dirección</label>
+              <input
+                id="description"
+                value={dataUser.address}
+                onChange={(e) => setDataUser({ ...dataUser, address: e.target.value })}
+              />
+            </div>
+            <div className="form-column">
+              <label>Índice de masa corporal</label>
+              <input
+                type="text"
+                id="evolution"
+                value={dataUser.corporal_mass}
+                onChange={(e) => setDataUser({ ...dataUser, corporal_mass: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Teléfono</label>
+              <input
+                type="text"
+                id="healthUnit"
+                value={dataUser.numberTel}
+                onChange={(e) => setDataUser({ ...dataUser, numberTel: e.target.value })}
+              />
+            </div>
+            <div className="form-column">
+              <label>Peso</label>
+              <input
+                type="text"
+                id="disease"
+                value={dataUser.weight}
+                onChange={(e) => setDataUser({ ...dataUser, weight: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Fecha de nacimiento</label>
+              <input
+                type="text"
+                id="healthUnit"
+                value={dataUser.birthdate}
+                onChange={(e) => setDataUser({ ...dataUser, birthdate: e.target.value })}
+              />
+            </div>
+            <div className="form-column">
+              <label>Altura</label>
+              <input
+                type="text"
+                id="disease"
+                value={dataUser.height}
+                onChange={(e) => setDataUser({ ...dataUser, height: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Genero</label>
+              <input
+                type="text"
+                id="healthUnit"
+                value={dataUser.genre}
+                onChange={(e) => setDataUser({ ...dataUser, genre: e.target.value })}
+              />
+            </div>
+            <div className="form-column">
+              <label>Adicciones</label>
+              <input
+                type="text"
+                id="healthUnit"
+                value={dataUser.addiction}
+                onChange={(e) => setDataUser({ ...dataUser, addiction: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Estado</label>
+              <input
+                type="text"
+                id="disease"
+                value={dataUser.status}
+                onChange={(e) => setDataUser({ ...dataUser, status: e.target.value })}
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            onClick={() => {
+              handleGeneral()
+              handleCloseGeneral()
+            }}>Enviar</button>
+        </form>
+      </Modal>
+      )}
+      {editTratamient && (
+      <Modal onClose={handleCloseEditTratamientos}>
+        <h2>Editar tratamiento</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Dosis a modificar</label>
+            <input
+              type="text"
+              id="date"
+              value={dataEditTratamient.dose}
+              onChange={(e) => setDataEditTratamient({ ...dataEditTratamient, dose: e.target.value })} />
+          </div>
+          <div className="form-row">
+            <label>Fecha finalización de tratamiento </label>
+            <input
+              type="text"
+              id="date"
+              value={dataEditTratamient.finalDate}
+              onChange={(e) => setDataEditTratamient({ ...dataEditTratamient, finalDate: e.target.value })} />
+          </div>
+          <button
+            type="submit"
+            onClick={() => {
+              handleEditTratamientos()
+              handleCloseEditTratamientos()
+            }}>Enviar</button>
         </form>
       </Modal>
       )}

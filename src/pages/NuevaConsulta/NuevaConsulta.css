@@ -1,0 +1,45 @@
+.containerTocomplete{
+    list-style: none;
+    border-radius: 12px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    background: #fcfcfc;
+    z-index: 1;
+}
+
+.containerTextComplete {
+    background-color: rgba(255, 255, 255, 0);
+    border: 1px solid rgba(204, 204, 204, 0);
+    border-radius: 12px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.containerTextComplete :hover  {
+    background-color: #d2d2d2;
+
+}
+
+.textContainer {
+    padding: 3px;
+    border-radius: 5px;
+}
+
+.inputAutoCompleteP{
+    border-radius: 8px;
+    outline: none;
+}
+
+.inputSpace {
+    height: max-content;
+    width: max-content;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.contenedorConsulta{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}

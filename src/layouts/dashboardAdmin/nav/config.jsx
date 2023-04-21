@@ -8,13 +8,13 @@ const icon = (name) => <SvgColor src={`src/assets/icons/navbar/${name}.svg`} sx=
 
 const navConfig = [
   {
-    title: 'expediente',
-    path: '/dashboard/expediente',
+    title: 'bitacora',
+    path: '/dashboardAdmin/bitacora',
     icon: icon('ic_user'),
   },
   {
     title: 'estadisticas',
-    path: '/dashboard/estadisticas',
+    path: '/dashboardAdmin/estadisticasAdmin',
     icon: icon('ic_cart'),
   },
   {
