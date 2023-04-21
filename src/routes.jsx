@@ -14,6 +14,8 @@ import EstadoInventario from './pages/EstadoInventario/EstadoInventario'
 import Bitacora from './pages/Bitacora/Bitacora'
 import EstadisticasAdmin from './pages/EstadisticasAmin/EstadisticasAdmin'
 import NuevaConsulta from './pages/NuevaConsulta/NuevaConsulta'
+import TrasladarMedico from './pages/TrasladarMedico/TrasladarMedico'
+import SolicitudInsumo from './pages/SolicitudInsumo/SolicitudInsumo'
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +42,7 @@ export default function Router() {
         { element: <Navigate to="/bitacora" />, index: true },
         { path: 'bitacora', element: <Bitacora /> },
         { path: 'estadisticasAdmin', element: <EstadisticasAdmin /> },
-        { path: 'nuevaconsulta', element: <NuevaConsulta /> },
+        { path: 'trasladarMedico', element: <TrasladarMedico /> },
       ],
     },
     {
@@ -49,8 +51,7 @@ export default function Router() {
       children: [
         { element: <Navigate to="/inventario" />, index: true },
         { path: 'inventario', element: <EstadoInventario /> },
-        { path: 'estadisticas', element: <Estadisticas /> },
-        { path: 'nuevaconsulta', element: <NuevaConsulta /> },
+        { path: 'solicitudInsumo', element: <SolicitudInsumo /> },
       ],
     },
   ])

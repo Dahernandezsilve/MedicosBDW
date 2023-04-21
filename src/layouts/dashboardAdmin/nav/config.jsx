@@ -18,8 +18,8 @@ const navConfig = [
     icon: icon('ic_cart'),
   },
   {
-    title: 'nueva consulta',
-    path: '/dashboard/nuevaconsulta',
+    title: 'trasladar medico',
+    path: '/dashboardAdmin/trasladarMedico',
     icon: icon('ic_lock'),
   },
 ]

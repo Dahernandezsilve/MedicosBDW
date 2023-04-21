@@ -13,8 +13,8 @@ const navConfig = [
     icon: icon('ic_user'),
   },
   {
-    title: 'estadisticas',
-    path: '/dashboard/estadisticas',
+    title: 'solicitud insumo',
+    path: '/dashboardInventario/solicitudInsumo',
     icon: icon('ic_cart'),
   },
   {

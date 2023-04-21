@@ -36,7 +36,7 @@ import { UserListHead } from '../../sections/@dashboard/user'
 import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App'
-import './NuevaConsulta.css'
+import './SolicitudInsumo.css'
 import {value} from "lodash/seq.js";
 
 // ----------------------------------------------------------------------
@@ -127,127 +127,124 @@ const InputAutoComplete = ({text, setText, width, options, name}) =>{
 
 
   return(
-      <div className='inputSpace' >
-          <h3>{name + ' '}</h3>
-          <input className='inputAutoCompleteP' style={{
-            width: width+'px',
-          }}
-                 onChange={(e)=> {
-                     setBollea(true)
-                     setText(e.target.value)}}
-                 value={text}
-                 placeholder={name}
-          >
-          </input>
-          <ToAutocomplete options={options} handleClickOptions={(value) => {
-              setBollea(false)
-              handleAction(value)}} value={text}
-            bollea={boolle}
-          ></ToAutocomplete>
-      </div>
+    <div className='inputSpace' >
+        <h3>{name + ' '}</h3>
+        <input className='inputAutoCompleteP' style={{
+          width: width+'px',
+        }}
+                onChange={(e)=> {
+                    setBollea(true)
+                    setText(e.target.value)}}
+                value={text}
+                placeholder={name}
+        >
+        </input>
+        <ToAutocomplete options={options} handleClickOptions={(value) => {
+            setBollea(false)
+            handleAction(value)}} value={text}
+          bollea={boolle}
+        ></ToAutocomplete>
+    </div>
   )
 }
 
-export default function NuevaConsulta() {
+export default function SolicitudInsumo() {
   const {auth, setAuth} = useContext(AuthContex)
-  const [patientDpi, setPatientDpi] = useState('')
-  const [diseaseId, setDiseaseId] = useState('')
-  const [docDpi, setDocDpi] = useState('')
   const [response, loading, handleRequest] = useApi()
-  const [optionsToDPIPatient, setOptionsToDPIPatient] = useState([])
-  const [optionsToDPIDoctor, setOptionsToDPIDoctor] = useState([])
-  const [optionsToIdDisease, setOptionsToIdDisease] = useState([])
   const [dateStart, setDateStart] = useState('')
 
-  const handleGetPatients = (value) => {
+  const [unitId, setUnitId] = useState('')
+  const [insumoId, setInsumoId] = useState('')
+  const [optionsToUnitID, setOptionsToUnitID] = useState([])
+  const [optionsToInsumoID, setOptionsToInsumoID] = useState([])
+  const [cantidad, setCantidad] = useState('')
+
+  const handleGetUnit = (value) => {
     console.log(value)
     const regex = /^\d+$/
     console.log(regex.test(value))
     if ((regex.test(value) || value === '') && value.length <= 13) {
-      setPatientDpi(value)
-      handleRequest('POST', '/patientInstant',{key: value}, auth.token)
+      setUnitId(value)
+      handleRequest('POST', '/unitInstant', { key: value }, auth.token)
     }
   }
 
-  const handleGetDoc = (value) => {
+  const handleGetInsumo = (value) => {
     console.log(value)
     const regex = /^\d+$/
     console.log(regex.test(value))
     if ((regex.test(value) || value === '') && value.length <= 13) {
-      setDocDpi(value)
-      handleRequest('POST', '/docInstant',{key: value}, auth.token)
+      setInsumoId(value)
+      handleRequest('POST', '/productInstant', { key: value }, auth.token)
     }
   }
 
-  const handleGetDisease = (value) => {
-    console.log(value)
-    const regex = /^\d+$/
-    console.log(regex.test(value))
-    if ((regex.test(value) || value === '') && value.length <= 13) {
-      setDiseaseId(value)
-      handleRequest('POST', '/diseaseInstant',{key: value}, auth.token)
-    }
-  }
+  
 
-  useEffect((()=>{
+  useEffect(() => {
     console.log(response)
-    if(response.data !== undefined && response.data.length>0){
-      if(response.type === 'Patient'){
-        console.log('Hola Si entro')
-        setOptionsToDPIDoctor([])
-        setOptionsToIdDisease([])
-        setOptionsToDPIPatient(response.data.map((paciente) => ({
-          value: paciente.dpi,
-          description: paciente.namePatient
-        })))
-        if(patientDpi ===''){
-            setOptionsToDPIPatient([])
-        }
-    } else if (response.type === 'Doctor'){
-        setOptionsToDPIPatient([])
-        setOptionsToIdDisease([])
-        setOptionsToDPIDoctor(response.data.map((paciente) => ({
-            value: paciente.dpi,
-            description: paciente.nameDoctor
-        })))
-        if(docDpi ===''){
-            setOptionsToDPIDoctor([])
-        }
-    } else if (response.type === 'Disease'){
+    if (response.data !== undefined && response.data.length > 0) {
+      if (response.type === 'Unit') {
         console.log(response.type)
-        setOptionsToDPIPatient([])
-        setOptionsToDPIDoctor([])
-        setOptionsToIdDisease(response.data.map((paciente) => ({
-            value: paciente.dpi,
-            description: paciente.nameDisease
+        setOptionsToInsumoID([])
+        setOptionsToUnitID(response.data.map((paciente) => ({
+          value: paciente.dpi,
+          description: paciente.nameUnit,
         })))
-        console.log(optionsToIdDisease)
-        if(diseaseId ==='') {
-            setOptionsToIdDisease([])
+        console.log(optionsToUnitID)
+        if (unitId === '') {
+          setOptionsToUnitID([])
         }
+      } else if (response.type === 'Product') {
+        console.log(response.type)
+        setOptionsToUnitID([])
+        setOptionsToInsumoID(response.data.map((paciente) => ({
+          value: paciente.dpi,
+          description: paciente.nameProduct,
+        })))
+        console.log(optionsToInsumoID)
+        if (insumoId === '') {
+          setOptionsToInsumoID([])
+        }
+      }
+      console.log(response)
     }
-  }
-    console.log(response)
-}), [response])
+  }, [response])
 
-useEffect(() => {
+  useEffect(() => {
     console.log(dateStart)
-},[dateStart])
+  }, [dateStart])
 
+  const handleRetirar = async () => {
+    await handleRequest('POST', '/solicitar', {
+      idProduct: unitId,
+      idUnit: insumoId,
+      count: cantidad,
+    }, auth.token)
+  }
 
-return (
-    <div >
-        <ButtonRadius text={'Hello world'} accion={()=>console.log('Hola Mundo')}></ButtonRadius>
-        <h1>Nueva Consulta</h1>
-
-        <div className='contenedorConsulta' >
-          <InputAutoComplete name={'DPI Paciente'} text={patientDpi} setText={(value) => handleGetPatients(value)} options={optionsToDPIPatient} width={200} />
-          <DateInput name={'Fecha Inicio'} date={dateStart} setDate={(value) => setDateStart(value)}></DateInput>
-          <InputAutoComplete name={'DPI Medico'} text={docDpi} setText={(value) => handleGetDoc(value)} options={optionsToDPIDoctor} width={200}></InputAutoComplete>
-          <InputAutoComplete name={'ID Enfermedad'} text={diseaseId} setText={(value) => handleGetDisease(value)} options={optionsToIdDisease} width={200}></InputAutoComplete>
-          <InputAutoComplete name={'ID Enfermedad'} text={diseaseId} setText={(value) => handleGetDisease(value)} options={optionsToIdDisease} width={200}></InputAutoComplete>
+  return (
+    <div>
+      <h1>Retirar insumo</h1>
+      <div className='contenedorConsulta' >
+        <InputAutoComplete name={'ID Unidad de salud'} text={unitId} setText={(value) => handleGetUnit(value)} options={optionsToUnitID} width={250} />
+        <InputAutoComplete name={'ID de insumo'} text={insumoId} setText={(value) => handleGetInsumo(value)} options={optionsToInsumoID} width={250} />
+        <div className="form-row">
+          <div className="form-column">
+            <label>Cantidad a retirar</label>
+            <input
+              type="text"
+              id="date"
+              onChange={(e) => setCantidad(e.target.value)}
+            />
+            <button
+              type="submit"
+              onClick={() => {
+                handleRetirar()
+              }}> Retirar </button>
+          </div>
         </div>
-
-</div>
- )
+      </div>
+    </div>
+  )
 }

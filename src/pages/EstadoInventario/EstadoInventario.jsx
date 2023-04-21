@@ -35,6 +35,7 @@ import { UserListHead } from '../../sections/@dashboard/user'
 import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App'
+import Modal from '../../components/Modal/Modal'
 import BotonSeleccionable from '../../components/BotonSeleccionable/BotonSeleccionable'
 
 // ----------------------------------------------------------------------
@@ -44,7 +45,7 @@ const TABLE_HEAD = [
   { id: 'insumo', label: 'Insumo', alignRight: false },
   { id: 'company', label: 'Cantidad', alignRight: false },
   { id: 'unitHealth', label: 'Unidad de salud', alignRight: false },
-  { id: 'quantity', label: 'Cantidad ideal', alignRight: false },
+  { id: ' ' },
 ]
 
 const expiredList = [
@@ -52,11 +53,43 @@ const expiredList = [
   { id: 'insumo', label: 'Insumo', alignRight: false },
   { id: 'company', label: 'Cantidad', alignRight: false },
   { id: 'unitHealth', label: 'Unidad de salud', alignRight: false },
-  { id: 'quantity', label: 'Cantidad ideal', alignRight: false },
   { id: 'expireDate', label: 'Fecha de expiración', alignRight: false },
+  { id: ' ' },
 ]
 
 // ----------------------------------------------------------------------
+
+const DateInput = ({name, date, setDate}) => {
+
+  const handleChange = event => {
+      const inputDate = event.target.value
+      const formattedDate = formatDate(inputDate)
+      setDate(formattedDate)
+  };
+
+  const formatDate = dateString => {
+      const date = new Date(dateString)
+      const year = date.getFullYear()
+      const month = zeroPad(date.getMonth() + 1)
+      const day = zeroPad(date.getDate())
+      const hours = zeroPad(date.getHours())
+      const minutes = zeroPad(date.getMinutes())
+      const seconds = zeroPad(date.getSeconds())
+      const milliseconds = zeroPad(date.getMilliseconds(), 3)
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`
+  };
+
+  const zeroPad = (number, width = 2) => {
+      return String(number).padStart(width, '0')
+  };
+
+  return (
+      <div>
+          <h3>{name + ' '}</h3>
+          <input type="datetime-local" value={date} onChange={handleChange} />
+      </div>
+  )
+}
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -115,6 +148,50 @@ export default function EstadoInventario(effect, deps) {
   // Botones seleccionables
 
   const [activeIndex, setActiveIndex] = useState(0)
+
+  const [solicitar, setSolicitar] = useState(false)
+  const [solicitarExpired, setSolicitarExpired] = useState(false)
+
+  const [cantidad, setCantidad] = useState('')
+  const [fechaVencimiento, setFechaVencimiento] = useState('')
+  const [dataAgotar, setDataAgotar] = useState({})
+  const [dataExpired, setDataExpired] = useState({})
+  const [dateStart, setDateStar] = useState('')
+  
+  const handleOpenSolicitar = () => {
+    setSolicitar(true)
+  }
+
+  const handleCloseSolicitar = () => {
+    setSolicitar(false)
+  }
+
+  const handleOpenSolicitarExpired = () => {
+    setSolicitarExpired(true)
+  }
+
+  const handleCloseSolicitarExpired = () => {
+    setSolicitarExpired(false)
+  }
+
+  const handleAgotar = async () => {
+    await handleRequest('POST', '/requestProduct', {
+      idProduct: dataAgotar.productId,
+      idUnit: dataAgotar.unitId,
+      count: cantidad,
+      expiredDate: fechaVencimiento,
+    }, auth.token)
+  }
+
+  const handleSolicitarExpired = async () => {
+    await handleRequest('POST', '/requestProductExpired', {
+      idProduct: dataExpired.productId,
+      idUnit: dataExpired.unitID,
+      count: cantidad,
+      expiredDate: fechaVencimiento,
+      oldExpiredDate: dataExpired.expiredDate,
+    }, auth.token)
+  }
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget)
@@ -238,8 +315,9 @@ export default function EstadoInventario(effect, deps) {
                         availableQuantity,
                         healthUnit,
                         product,
-                        totalQuantity,
                         expiredDate,
+                        productId,
+                        unitID,
                       } = row
 
                       return (
@@ -259,10 +337,18 @@ export default function EstadoInventario(effect, deps) {
 
                           <TableCell align="left">{healthUnit}</TableCell>
 
-                          <TableCell align="left">{totalQuantity}</TableCell>
-
                           <TableCell align="left">{expiredDate}</TableCell>
 
+                          <TableCell style={{ fontSize: 10 }} align="right">
+                            <MenuItem onClick={() => {
+                              setDataExpired(row)
+                              handleOpenSolicitarExpired()
+                            }}
+                            >
+                            <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                              Solicitar
+                           </MenuItem>
+                          </TableCell>
                         </TableRow>
                       )
                     })}
@@ -307,7 +393,7 @@ export default function EstadoInventario(effect, deps) {
               </TableContainer>
             </Scrollbar>
           </Card>
-        ) : ''}
+        ) : null}
         {
           activeIndex === 0 ? (
             <Card>
@@ -326,10 +412,11 @@ export default function EstadoInventario(effect, deps) {
                     <TableBody>
                       {dataDisea.map((row) => {
                         const {
-                          availableQuantity,
+                          productId,
                           healthUnit,
                           product,
-                          totalQuantity,
+                          availableQuantity,
+                          unitId,
                         } = row
 
                         return (
@@ -349,7 +436,16 @@ export default function EstadoInventario(effect, deps) {
 
                             <TableCell align="left">{healthUnit}</TableCell>
 
-                            <TableCell align="left">{totalQuantity}</TableCell>
+                            <TableCell style={{ fontSize: 10 }} align="right">
+                              <MenuItem onClick={() => {
+                                setDataAgotar(row)
+                                handleOpenSolicitar()
+                              }}
+                              >
+                                <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                                Solicitar
+                              </MenuItem>
+                            </TableCell>
 
                           </TableRow>
                         )
@@ -395,8 +491,56 @@ export default function EstadoInventario(effect, deps) {
                 </TableContainer>
               </Scrollbar>
             </Card>
-          ) : ('')
+          ) : null
         }
+        {solicitar && (
+        <Modal onClose={handleCloseSolicitar}>
+          <h2>Solicitar medicamento</h2>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Cantidad a solicitar</label>
+              <input
+                type="text"
+                id="date"
+                onChange={(e) => setCantidad(e.target.value)}
+              />
+            </div>
+            <div className="form-column">
+              <DateInput name={'Fecha de vencimiento'} date={fechaVencimiento} setDate={(value) => setFechaVencimiento(value)} />
+            </div>
+          </div>
+          <button
+            type="submit"
+            onClick={() => {
+              handleAgotar()
+              handleCloseSolicitar()
+            }}> Solicitar </button>
+        </Modal>
+        )}
+        {solicitarExpired && (
+        <Modal onClose={handleCloseSolicitarExpired}>
+          <h2>Solicitar medicamento</h2>
+          <div className="form-row">
+            <div className="form-column">
+              <label>Cantidad a solicitar</label>
+              <input
+                type="text"
+                id="date"
+                onChange={(e) => setCantidad(e.target.value)}
+              />
+            </div>
+            <div className="form-column">
+              <DateInput name={'Fecha de vencimiento'} date={fechaVencimiento} setDate={(value) => setFechaVencimiento(value)} />
+            </div>
+          </div>
+          <button
+            type="submit"
+            onClick={() => {
+              handleSolicitarExpired()
+              handleCloseSolicitarExpired()
+            }}> Solicitar </button>
+        </Modal>
+        )}
       </Container>
 
       <Popover
