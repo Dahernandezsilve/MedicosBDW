@@ -9,10 +9,8 @@ import { any } from 'prop-types'
 import { AuthContex } from '../../App.jsx'
 import { set } from 'lodash'
 
-
-
 function SignUpContainer({
-  handleLogin, dpi, nombre, response, setDpi, setNombre, loading, handleEnter
+  handleSingin, dpi, nombre, response, setDpi, setNombre, loading, handleEnter, mensaje, setClave, setCodigo
 }) {
   return (
     <div className="form-container sign-up-container">
@@ -21,18 +19,12 @@ function SignUpContainer({
         <h1 className="titleForm2">Registrarse</h1>
         <input placeholder="DPI" onChange={({ target: { value } }) => setDpi(value)} />
         <input placeholder="Nombre" onChange={({ target: { value } }) => setNombre(value)} />
-        <input placeholder="Contraseña" onChange={({ target: { value } }) => setNombre(value)} />
-        <input placeholder="Clave" onChange={({ target: { value } }) => setNombre(value)} />
-        <button
-          className="btnForm"
-          type="button"
-          onClick={() => {
-            handleLogin()
-            navigate('Exit')
-          }}
-        >
-          Continuar
-        </button>
+        <input placeholder="Contraseña" onChange={({ target: { value } }) => setClave(value)} />
+        <input placeholder="Clave" onChange={({ target: { value } }) => setCodigo(value)} />
+        {
+          mensaje ? (<h1 className="titleForm2">Registró exitoso "Ve a la otra pestaña"</h1>) : (<button className="btnForm" type="button" onClick={handleSingin}>Registrarse</button>)
+        }
+
       </form>
     </div>
   )
@@ -63,8 +55,10 @@ function Login() {
   const [nombre, setNombre] = useState('')
   const [navegar, setNavegar] = useState(false)
   const [rol, setRol] = useState('')
+  const [mensaje, setMensaje] = useState('')
 
   const [clave, setClave] = useState('')
+  const [codigo, setCodigo] = useState('')
   const [showSignUp, setShowSignUp] = useState(false)
   const [showLogin, setShowLogin] = useState(true)
 
@@ -82,6 +76,10 @@ function Login() {
 
   const handleLogin = async () => {
     await handleRequest('POST', '/login', { dpi: parseInt(dpi, 10).toString(), clave })
+  }
+
+  const handleSingin = async () => {
+    await handleRequest('POST', '/singin', { dpi, nombre, clave, codigo_acceso: codigo })
   }
 
   const handleNavegate = (responseRol) => {
@@ -111,6 +109,9 @@ function Login() {
         console.log(auth.authentication)
         setNavegar(true)
       }
+      if (verificador === 'Datos agregados exitosamente') {
+        setMensaje(true)
+      }
     }
   }, [response])
 
@@ -125,13 +126,16 @@ function Login() {
     <div className="containerPrincipal">
       <div className={containerClass}>
         <SignUpContainer
-          handleLogin={handleLogin}
+          handleSingin={handleSingin}
           dpi={dpi}
           nombre={nombre}
           response={response}
           setDpi={setDpi}
           setNombre={setNombre}
+          setClave={setClave}
           loading={loading}
+          mensaje={mensaje}
+          setCodigo={setCodigo}
         />
         <LoginContainer
           handleLogin={handleLogin}

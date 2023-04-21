@@ -39,20 +39,7 @@
 }
 
 .contenedorConsulta{
-    height: 300px;
-    margin-bottom: 0px;
-
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(10, 1fr);
-}
-
-.toDescription{
-    height: 100px;
-    width: 400px;
-    background-color: #d9d9d9;
-    color: #000000;
-    outline: none;
-    border-radius: 5px;
-    border: transparent;
+    grid-template-rows: repeat(10, 1fr);
 }

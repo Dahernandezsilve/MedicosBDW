@@ -18,6 +18,11 @@ const navConfig = [
     icon: icon('ic_cart'),
   },
   {
+    title: 'mantenimientos',
+    path: '/dashboardAdmin/mantenimientos',
+    icon: icon('ic_cart'),
+  },
+  {
     title: 'trasladar medico',
     path: '/dashboardAdmin/trasladarMedico',
     icon: icon('ic_lock'),
