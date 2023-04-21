@@ -16,6 +16,7 @@ import EstadisticasAdmin from './pages/EstadisticasAmin/EstadisticasAdmin'
 import NuevaConsulta from './pages/NuevaConsulta/NuevaConsulta'
 import TrasladarMedico from './pages/TrasladarMedico/TrasladarMedico'
 import SolicitudInsumo from './pages/SolicitudInsumo/SolicitudInsumo'
+import Examenes from './pages/Examenes/Examenes'
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ export default function Router() {
         { element: <Navigate to="/expediente" />, index: true },
         { path: 'expediente', element: <UserPage /> },
         { path: 'estadisticas', element: <Estadisticas /> },
+        { path: 'examenes', element: <Examenes /> },
         { path: 'nuevaconsulta', element: <NuevaConsulta /> },
       ],
     },

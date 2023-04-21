@@ -18,6 +18,11 @@ const navConfig = [
     icon: icon('ic_cart'),
   },
   {
+    title: 'examenes',
+    path: '/dashboard/examenes',
+    icon: icon('ic_lock'),
+  },
+  {
     title: 'nueva consulta',
     path: '/dashboard/nuevaconsulta',
     icon: icon('ic_lock'),

@@ -41,7 +41,7 @@ import USERLIST from '../../_mock/user'
 import useApi from '../../../hooks/useApi/useApi'
 import { AuthContex } from '../../App.jsx'
 import Modal from '../../components/Modal/Modal'
-import './UserPage.css'
+import './Examenes.css'
 
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
@@ -59,12 +59,6 @@ const tableTratamientos = [
   { id: 'dosis', label: 'Dosis', alignRight: false },
   { id: 'fechaInicio', label: 'Fecha de inicio', alignRight: false },
   { id: 'fechaFin', label: 'Fecha de finalización', alignRight: false },
-  { id: '' },
-]
-
-const tableExamenes = [
-  { id: 'idExam', label: 'ID del examen', alignRight: false },
-  { id: 'nameExam', label: 'Nombre del examen', alignRight: false },
   { id: '' },
 ]
 // ----------------------------------------------------------------------
@@ -98,7 +92,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0])
 }
 
-export default function UserPage() {
+export default function Examenes() {
   const { auth, setAuth } = useContext(AuthContex)
 
   const [response, loading, handleRequest] = useApi()
@@ -139,8 +133,9 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5)
 
   const [examenes, setExamenes] = useState(false)
-  const [dataExam, setDataExam] = useState([])
-  const [examId, setExamId] = useState('')
+  const [dataExam, setDataExam] = useState(false)
+  const [idExam, setIdExam] = useState(false)
+
   const handleOpenExamenes = () => {
     setExamenes(true)
   }
@@ -150,15 +145,7 @@ export default function UserPage() {
   }
 
   const handleExamenes = async () => {
-    await handleRequest('POST', '/exam', { dpi: id_patient }, auth.token)
-  }
-
-  const handleDeleteExam = async (idExam) => {
-    await handleRequest('POST', '/deleteExam', { dpi: id_patient, idExam }, auth.token)
-  }
-
-  const handleAddExam = async (idExam) => {
-    await handleRequest('POST', '/addExam', { dpi: id_patient, idExam }, auth.token)
+    await handleRequest('POST', '/examenes', { id_patient }, auth.token)
   }
 
   const handleOpenMenu = (event) => {
@@ -266,10 +253,6 @@ export default function UserPage() {
   }
 
   useEffect(() => {
-    console.log('dataExam', dataExam)
-  }, [dataExam])
-
-  useEffect(() => {
     if (response.data) {
       console.log('responseEffect', response)
       if (response.data.length > 0) {
@@ -316,11 +299,11 @@ export default function UserPage() {
   return (
     <div>
       <Helmet>
-        <title> Expediente </title>
+        <title> Examenes </title>
       </Helmet>
       <Container>
         <Typography variant="h2" gutterBottom alignItems="left">
-          Expediente
+          Examenes:
         </Typography>
         <div
           onKeyUp={handleEnter}
@@ -337,20 +320,20 @@ export default function UserPage() {
             <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
             Editar
           </MenuItem>
+          <MenuItem onClick={() => {
+            handleOpenExamenes()
+            handleCloseMenu()
+          }}
+          >
+            <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+            Ver examenes
+          </MenuItem>
          </div>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           {
           expedienteS ? (
             <>
-              <MenuItem onClick={() => {
-                handleOpenExamenes()
-                handleExamenes()
-                handleCloseMenu()
-              }}
-              >
-                <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-                Ver examenes
-              </MenuItem>
+              
               <Typography variant="h4" gutterBottom>
                 Datos generales
                 <Typography variant="h6" gutterBottom>
@@ -637,7 +620,7 @@ export default function UserPage() {
         <TableContainer sx={{ minWidth: 800 }}>
           <Table>
             <UserListHead
-              headLabel={tableExamenes}
+              headLabel={tableTratamientos}
               rowCount={USERLIST.length}
               numSelected={selected.length}
             />
@@ -656,15 +639,15 @@ export default function UserPage() {
 
                     <TableCell style={{ fontSize: 10 }} align="left">{nameExam}</TableCell>
 
-                    <TableCell style={{ fontSize: 10 }} align="left">
-                    <MenuItem sx={{ color: 'error.main' }}
-                        onClick={() => {
-                          handleDeleteExam(idExam)
-                        }}
-                        >
-                        <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-                        Eliminar
-                    </MenuItem>
+                    <TableCell style={{ fontSize: 10 }} align="right">
+                      <MenuItem onClick={() => {
+                        setIdExam(idExam)
+                        handleDeleteExam()
+                      }}
+                      >
+                        <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+                        Editar
+                      </MenuItem>
                     </TableCell>
                   </TableRow>
                 )
@@ -708,11 +691,6 @@ export default function UserPage() {
             )}
           </Table>
         </TableContainer>
-        <label>ID del examen a añadir</label>
-        <input onChange={({ target: { value } }) => {
-            setExamId(value)
-          }}/>
-        <button onClick={() => {handleAddExam(examId)}} type="button">Añadir examen</button>
         <button onClick={handleCloseExamenes} type="button">Cerrar</button>
       </Modal>
       )}
