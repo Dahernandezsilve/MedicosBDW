@@ -13,7 +13,7 @@ import DashboardLayoutInventario from './layouts/dashboardInventario/DashboardLa
 import EstadoInventario from './pages/EstadoInventario/EstadoInventario'
 import Bitacora from './pages/Bitacora/Bitacora'
 import EstadisticasAdmin from './pages/EstadisticasAmin/EstadisticasAdmin'
-import NuevaConsulta from './pages/NuevaCOnsulta/NuevaConsulta'
+import NuevaConsulta from './pages/NuevaConsulta/NuevaConsulta'
 
 // ----------------------------------------------------------------------
 
